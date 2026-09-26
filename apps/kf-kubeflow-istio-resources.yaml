@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kf-kubeflow-istio-resources
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/kubeflow/manifests.git
+    targetRevision: v1.11.0
+    path: common/istio/kubeflow-istio-resources/base
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated: {prune: false, selfHeal: true}
+    syncOptions: [ServerSideApply=true, SkipDryRunOnMissingResource=true]
+    retry: {limit: 20, backoff: {duration: 20s, factor: 2, maxDuration: 5m}}

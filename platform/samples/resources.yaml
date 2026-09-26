@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Namespace
+metadata: {name: platform-samples}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: {name: sample-db}
+spec:
+  serviceName: sample-db
+  replicas: 1
+  selector: {matchLabels: {app: sample-db}}
+  template:
+    metadata: {labels: {app: sample-db}}
+    spec:
+      containers:
+      - name: db
+        image: mcr.microsoft.com/cbl-mariner/base/core:2.0
+        command: ["sh","-c","while true; do date >> /data/ticks; sleep 60; done"]
+        volumeMounts: [{name: data, mountPath: /data}]
+  volumeClaimTemplates:
+  - metadata: {name: data}
+    spec: {accessModes: [ReadWriteOnce], resources: {requests: {storage: 1Gi}}}
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata: {name: node-agent}
+spec:
+  selector: {matchLabels: {app: node-agent}}
+  template:
+    metadata: {labels: {app: node-agent}}
+    spec:
+      tolerations: [{operator: Exists}]
+      containers:
+      - name: agent
+        image: mcr.microsoft.com/cbl-mariner/base/core:2.0
+        command: ["sh","-c","sleep infinity"]

@@ -1,0 +1,13 @@
+# NVIDIA device plugin (the customer's "GPU plugins"), in its own namespace so Fleet can place it later.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: nvidia-device-plugin
+resources:
+- namespace.yaml
+- https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.20.1/deployments/static/nvidia-device-plugin.yml
+patches:
+- target: {kind: DaemonSet, name: nvidia-device-plugin-daemonset}
+  patch: |-
+    - op: add
+      path: /spec/template/spec/tolerations/-
+      value: {key: kubernetes.azure.com/scalesetpriority, operator: Equal, value: spot, effect: NoSchedule}

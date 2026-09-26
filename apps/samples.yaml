@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: samples
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ytimocin/kubeflow-fleet-gitops.git
+    targetRevision: main
+    path: platform/samples
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated: {prune: false, selfHeal: true}
+    syncOptions: [ServerSideApply=true, SkipDryRunOnMissingResource=true]
+    retry: {limit: 20, backoff: {duration: 20s, factor: 2, maxDuration: 5m}}
