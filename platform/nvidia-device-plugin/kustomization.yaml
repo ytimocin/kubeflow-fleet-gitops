@@ -11,3 +11,6 @@ patches:
     - op: add
       path: /spec/template/spec/tolerations/-
       value: {key: kubernetes.azure.com/scalesetpriority, operator: Equal, value: spot, effect: NoSchedule}
+    - op: add
+      path: /spec/template/spec/nodeSelector
+      value: {kubernetes.azure.com/accelerator: nvidia}  # GPU nodes only; it crash-loops on CPU nodes
