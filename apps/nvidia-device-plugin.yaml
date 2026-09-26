@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/ytimocin/kubeflow-fleet-gitops.git
+    repoURL: git@github.com:ytimocin/kubeflow-fleet-gitops.git
     targetRevision: main
     path: platform/nvidia-device-plugin
   destination:
