@@ -2,7 +2,7 @@
 
 The Fleet GPU placement demo only needs Training Operator. The full Kubeflow installation below adds the familiar dashboard and Pipelines UI to **East**, for discussing the existing workflow. It takes longer and needs extra CPU capacity. It does not implement the upcoming remote pipeline example.
 
-If Kubeflow is already installed, jump to **Open the dashboard**. Run these commands from the repository root after defining the environment and `east()` in the main README.
+If Kubeflow is already installed, jump to **Open the dashboard**. Run these commands from the repository root after [connecting](OPERATIONS.md#connect) to define the environment and `east()`.
 
 ## Install Kubeflow v1.11.0
 
@@ -51,7 +51,7 @@ The small helper below preserves AKS webhook namespace exclusions and controller
 ```bash
 applied=false
 for attempt in $(seq 1 15); do
-  .venv/bin/python "$DEMO/scripts/aks-webhook-selectors.py" \
+  .venv/bin/python "$DEMO/scripts/prepare-kubeflow-for-aks.py" \
     "$STATE/kubeflow.yaml" --kubeconfig "$STATE/east" || break
   if east apply --server-side -f "$STATE/kubeflow.yaml"; then
     applied=true

@@ -61,7 +61,7 @@ az role assignment create --assignee-object-id "$object_id" \
   --role 'Azure Kubernetes Fleet Manager RBAC Cluster Admin' --scope "$fleet_id"
 ```
 
-The role assignment can take a few minutes to propagate. If using a service principal, use its object ID and `ServicePrincipal` instead of `User`. Run the connection block in [README section 1](README.md#1-connect) to define `hub`, `east`, and `west`. On a fresh installation its GPU checks will show no GPU nodes yet; add them in the next section.
+The role assignment can take a few minutes to propagate. If using a service principal, use its object ID and `ServicePrincipal` instead of `User`. Run the connection block in [Operations: Connect](OPERATIONS.md#connect) to define `hub`, `east`, and `west`. On a fresh installation its GPU checks will show no GPU nodes yet; add them in the next section.
 
 ## 3. Add a GPU pool to each member
 
@@ -135,6 +135,6 @@ hub get memberclusters
 
 Ensure the hub serves `ResourcePlacement` and `ClusterResourcePlacement` in `v1`. The namespace-only selector requires Fleet support; verify against your managed hub rather than assuming every Fleet version matches upstream.
 
-Now run [README sections 2–4](README.md#2-create-the-namespace-on-both-members). Optionally install the [Kubeflow dashboard](DASHBOARD.md) on East.
+Now run [the three-step demo](README.md#1-prepare-the-namespace). Optionally install the [Kubeflow dashboard](DASHBOARD.md) on East.
 
 References: [Azure Fleet creation](https://learn.microsoft.com/en-us/azure/kubernetes-fleet/quickstart-create-fleet-and-members), [AKS GPUs](https://learn.microsoft.com/en-us/azure/aks/use-nvidia-gpu), [AKS Spot pools](https://learn.microsoft.com/en-us/azure/aks/spot-node-pool), [Fleet v1 API](https://kubefleet.dev/docs/api-reference/placement.kubernetes-fleet.io/v1/), [Training Operator v1.9.2](https://github.com/kubeflow/training-operator/tree/v1.9.2).

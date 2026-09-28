@@ -1,4 +1,4 @@
-"""Keep AKS/controller-managed webhook fields while preserving upstream selectors."""
+"""Prepare rendered Kubeflow YAML for AKS without claiming controller-owned fields."""
 import argparse
 import json
 import os
