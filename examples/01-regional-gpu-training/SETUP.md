@@ -80,33 +80,42 @@ The role assignment can take a few minutes to propagate. If using a service prin
 
 ## 3. Add a GPU pool to each member
 
-**Choose one block**, not both. The system pools created above remain regular nodes.
-
-Regular GPUs (use when quota and capacity are available):
-
-```bash
-for cluster in "$EAST" "$WEST"; do
-  gpu_sku="$WEST_GPU_SKU"
-  if [ "$cluster" = "$EAST" ]; then gpu_sku="$EAST_GPU_SKU"; fi
-  az aks nodepool add -g "$RG" --cluster-name "$cluster" \
-    --name gpu --mode User --node-count 1 --node-vm-size "$gpu_sku" \
-    --os-sku Ubuntu --node-osdisk-size 128 --node-osdisk-type Managed --node-taints sku=gpu:NoSchedule
-done
-```
+**Choose one option.** If section 1 showed zero regular quota for your selected GPU families, use **Spot** below. Spot nodes can be evicted; the system pools remain regular. Wait for the whole loop to finish successfully before installing the device plugin.
 
 Spot GPUs (used for this rehearsal because regular GPU quota was unavailable):
 
 ```bash
 for cluster in "$EAST" "$WEST"; do
+  printf "Waiting for %s to finish any AKS update...\n" "$cluster"
+  az aks wait -g "$RG" -n "$cluster" --updated --interval 15 --timeout 1800 || break
   gpu_sku="$WEST_GPU_SKU"
   if [ "$cluster" = "$EAST" ]; then gpu_sku="$EAST_GPU_SKU"; fi
   az aks nodepool add -g "$RG" --cluster-name "$cluster" \
     --name gpu --mode User --node-count 1 --node-vm-size "$gpu_sku" \
     --os-sku Ubuntu --node-osdisk-size 128 --node-osdisk-type Managed --node-taints sku=gpu:NoSchedule \
     --priority Spot --eviction-policy Delete --spot-max-price -1 \
-    --enable-cluster-autoscaler --min-count 1 --max-count 1
+    --enable-cluster-autoscaler --min-count 1 --max-count 1 || break
 done
 ```
+
+<details>
+<summary>Alternative: regular GPUs, only with sufficient family and regional quota</summary>
+
+Regular GPUs (use when quota and capacity are available):
+
+```bash
+for cluster in "$EAST" "$WEST"; do
+  printf "Waiting for %s to finish any AKS update...\n" "$cluster"
+  az aks wait -g "$RG" -n "$cluster" --updated --interval 15 --timeout 1800 || break
+  gpu_sku="$WEST_GPU_SKU"
+  if [ "$cluster" = "$EAST" ]; then gpu_sku="$EAST_GPU_SKU"; fi
+  az aks nodepool add -g "$RG" --cluster-name "$cluster" \
+    --name gpu --mode User --node-count 1 --node-vm-size "$gpu_sku" \
+    --os-sku Ubuntu --node-osdisk-size 128 --node-osdisk-type Managed --node-taints sku=gpu:NoSchedule || break
+done
+```
+
+</details>
 
 Install the NVIDIA device plugin; AKS provides the GPU driver with the supported GPU node image. This configuration runs the plugin only on GPU nodes and tolerates the GPU and Spot taints. Do not install a second plugin if your cluster already manages one.
 
