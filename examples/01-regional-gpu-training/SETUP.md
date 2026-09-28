@@ -61,7 +61,7 @@ az role assignment create --assignee-object-id "$object_id" \
   --role 'Azure Kubernetes Fleet Manager RBAC Cluster Admin' --scope "$fleet_id"
 ```
 
-The role assignment can take a few minutes to propagate. If using a service principal, use its object ID and `ServicePrincipal` instead of `User`. Run the connection block in [README section 1](README.md#1-connect) to define `hub`, `east`, and `west`.
+The role assignment can take a few minutes to propagate. If using a service principal, use its object ID and `ServicePrincipal` instead of `User`. Run the connection block in [README section 1](README.md#1-connect) to define `hub`, `east`, and `west`. On a fresh installation its GPU checks will show no GPU nodes yet; add them in the next section.
 
 ## 3. Add a GPU pool to each member
 

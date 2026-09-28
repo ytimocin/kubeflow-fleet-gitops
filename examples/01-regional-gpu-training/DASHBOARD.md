@@ -67,7 +67,7 @@ east get pods -A
 east get pvc -A
 ```
 
-Resolve failed workloads and unbound PVCs before presenting. The upstream example includes a local demo account; inspect its configured login in `.cache/kubeflow-manifests/common/dex/overlays/oauth2-proxy/config-map.yaml`. Keep the demo private and access it through the localhost tunnel below.
+Resolve failed workloads and unbound PVCs before presenting. The unchanged upstream example uses email `user@example.com` and password `12341234`, as documented in the release README. If you customized Dex, use your configured credentials instead. Keep the demo private and access it through the localhost tunnel below.
 
 ## Open the dashboard
 

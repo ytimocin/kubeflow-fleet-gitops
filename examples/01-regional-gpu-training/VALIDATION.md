@@ -25,6 +25,7 @@ West: GPU=Tesla T4 CUDA=12.4
 
 Also verified:
 
+- The reset commands removed the demo RP, source job, member jobs, and pods; both GPU nodes remained ready for another rehearsal.
 - Both managed Fleet members joined; the namespace-only CRP created the namespace on both.
 - Training Operator v1.9.2 ran on both members. PyTorchJob and ResourcePlacement passed hub server-side validation.
 - East ran AKS 1.35.8; West ran AKS 1.35.7. NVIDIA device plugin v0.20.1 exposed one GPU per member.
