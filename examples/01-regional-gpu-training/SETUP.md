@@ -26,16 +26,20 @@ az account set --subscription "$SUBSCRIPTION"
 for location_sku in "$EAST_REGION:$EAST_GPU_SKU" "$WEST_REGION:$WEST_GPU_SKU"; do
   region="${location_sku%%:*}"
   gpu_sku="${location_sku#*:}"
+  printf "Checking quota in %s...\n" "$region"
   az vm list-usage -l "$region" \
-    --query "[?contains(name.value,'NC') || name.value=='lowPriorityCores'].{Quota:name.localizedValue,Used:currentValue,Limit:limit}" -o table
+    --query "[?contains(name.value,'NC') || name.value=='lowPriorityCores'].{Quota:name.localizedValue,Used:currentValue,Limit:limit}" -o table || break
+  printf "Checking %s in %s (this can take a few minutes)...\n" "$gpu_sku" "$region"
   az vm list-skus -l "$region" --size "$gpu_sku" --all \
-    --query '[].{SKU:name,Restrictions:restrictions}' -o json
+    --query '[].{SKU:name,Restrictions:restrictions}' -o json || break
 done
 ```
 
 These selections use one A100 / 24 vCPUs in East and one T4 / 4 vCPUs in West. East T4 Spot allocation failed during rehearsal; the A100 is an alternative, not a Fleet requirement. If T4 capacity is available in your first region, set `EAST_GPU_SKU=Standard_NC4as_T4_v3` for a smaller pool. Regular nodes require suitable family and regional quota. Spot uses a separate quota and is interruptible. Quota and unrestricted SKUs do not guarantee allocation capacity. Choose regions where allocation succeeds.
 
 ## 2. Create the hub and members
+
+Run both AKS creation commands and wait for each to succeed before joining the members. Stop and resolve any error before continuing.
 
 ```bash
 az group create -n "$RG" -l "$EAST_REGION"
@@ -49,11 +53,22 @@ az aks create -g "$RG" -n "$WEST" -l "$WEST_REGION" \
   --nodepool-name system --node-count 1 --node-vm-size Standard_D4as_v5 \
   --enable-managed-identity --network-plugin azure --network-plugin-mode overlay \
   --generate-ssh-keys
+```
+
+Join the two existing AKS clusters to Fleet:
+
+```bash
 for cluster in "$EAST" "$WEST"; do
-  cluster_id=$(az aks show -g "$RG" -n "$cluster" --query id -o tsv)
+  printf "Joining %s to Fleet...\n" "$cluster"
+  cluster_id=$(az aks show -g "$RG" -n "$cluster" --query id -o tsv) || break
   az fleet member create -g "$RG" --fleet-name "$FLEET" \
-    -n "$cluster" --member-cluster-id "$cluster_id"
+    -n "$cluster" --member-cluster-id "$cluster_id" || break
 done
+```
+
+After both members join successfully, grant your user access to the hub:
+
+```bash
 fleet_id=$(az fleet show -g "$RG" -n "$FLEET" --query id -o tsv)
 object_id=$(az ad signed-in-user show --query id -o tsv)
 az role assignment create --assignee-object-id "$object_id" \
