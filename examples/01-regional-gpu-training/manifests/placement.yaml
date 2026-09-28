@@ -1,0 +1,14 @@
+apiVersion: placement.kubernetes-fleet.io/v1
+kind: ResourcePlacement
+metadata:
+  name: gpu-training
+  namespace: gpu-training
+spec:
+  resourceSelectors:
+    - group: kubeflow.org
+      version: v1
+      kind: PyTorchJob
+      name: regional-gpu-training
+  policy:
+    placementType: PickFixed
+    clusterNames: [demo-east]

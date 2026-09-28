@@ -1,6 +1,0 @@
-# Plain workload shapes the customer named (StatefulSet + PVC, DaemonSet), outside Kubeflow.
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-namespace: platform-samples
-resources:
-- resources.yaml
