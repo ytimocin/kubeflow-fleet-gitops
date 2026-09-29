@@ -1,8 +1,8 @@
-# One-time Azure setup
+# Shared infrastructure setup
 
 Run from the repository root in Bash or zsh. Requires Azure CLI with `fleet` support, `kubectl`, `kubelogin`, Python 3, Git, and permission to create AKS/Fleet and assign the Fleet data-plane role. Allow provisioning and image-pull time before the meeting.
 
-Use a **dedicated** resource group. Two GPU-capable members are sufficient for this example. Fleet does not create GPU capacity or bypass Azure quota.
+Use a **dedicated** resource group. Both examples use this same infrastructure. Create it once, then run either example in any order. Fleet does not create GPU capacity or bypass Azure quota.
 
 ## 1. Variables and quota
 
@@ -20,7 +20,7 @@ export EAST_REGION=eastus2
 export WEST_REGION=westus2
 export EAST_GPU_SKU=Standard_NC24ads_A100_v4
 export WEST_GPU_SKU=Standard_NC4as_T4_v3
-export DEMO="$PWD/examples/01-regional-gpu-training"
+export SHARED="$PWD/shared"
 export STATE="$PWD/.state"
 mkdir -p "$STATE"
 chmod 700 "$STATE"
@@ -104,7 +104,7 @@ east get nodes
 west get nodes
 ```
 
-`hub`, `east`, and `west` are shell functions, not installed commands. They forward every argument to `kubectl` using the corresponding kubeconfig. For example, `east get nodes` means `kubectl --kubeconfig "$STATE/east" get nodes`. Keep using this terminal for the remaining steps; in a new terminal, use [Operations: Connect](OPERATIONS.md#connect). GPU nodes are added next.
+`hub`, `east`, and `west` are shell functions, not installed commands. They forward every argument to `kubectl` using the corresponding kubeconfig. For example, `east get nodes` means `kubectl --kubeconfig "$STATE/east" get nodes`. Keep using this terminal for the remaining steps; in a new terminal, use [Connect](CONNECT.md). GPU nodes are added next.
 
 ## 3. Add a GPU pool to each member
 
@@ -150,8 +150,8 @@ done
 Install the NVIDIA device plugin; AKS provides the GPU driver with the supported GPU node image. This configuration runs the plugin only on GPU nodes and tolerates the GPU and Spot taints. Do not install a second plugin if your cluster already manages one.
 
 ```bash
-east apply -k "$DEMO/manifests/device-plugin"
-west apply -k "$DEMO/manifests/device-plugin"
+east apply -k "$SHARED/manifests/device-plugin"
+west apply -k "$SHARED/manifests/device-plugin"
 east -n nvidia-device-plugin rollout status ds/nvidia-device-plugin-daemonset --timeout=300s
 west -n nvidia-device-plugin rollout status ds/nvidia-device-plugin-daemonset --timeout=300s
 east get nodes -l kubernetes.azure.com/accelerator=nvidia \
@@ -219,6 +219,18 @@ Look for `resourceplacements` and `clusterresourceplacements` serving `placement
 
 </details>
 
-Now run [the three-step demo](README.md#1-prepare-the-namespace). Optionally install the [Kubeflow dashboard](DASHBOARD.md) on East.
+Choose either [regional GPU training](../examples/01-regional-gpu-training/README.md) or [Pipelines with remote training](../examples/02-pipelines-remote-training/README.md). Neither requires running the other. Example 2 additionally needs [Kubeflow Pipelines on East](KUBEFLOW.md); this is optional for Example 1.
 
 References: [Azure Fleet creation](https://learn.microsoft.com/en-us/azure/kubernetes-fleet/quickstart-create-fleet-and-members), [AKS GPUs](https://learn.microsoft.com/en-us/azure/aks/use-nvidia-gpu), [AKS Spot pools](https://learn.microsoft.com/en-us/azure/aks/spot-node-pool), [Fleet v1 API](https://kubefleet.dev/docs/api-reference/placement.kubernetes-fleet.io/v1/), [Training Operator v1.9.2](https://github.com/kubeflow/training-operator/tree/v1.9.2).
+
+## Cleanup shared infrastructure
+
+> Delete the shared environment only when you are finished with both examples.
+
+This removes **all resources in your dedicated demo resource group**, including Fleet, AKS, and their managed resources. For removing just one example's jobs, use that example's cleanup instructions instead.
+
+```bash
+az group delete --name "$RG" --yes --no-wait
+```
+
+GPU pools incur charges while allocated; Spot nodes may be evicted.

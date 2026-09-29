@@ -2,7 +2,19 @@
 
 Run one Kubeflow PyTorchJob on East’s GPU, then change its Fleet placement to run it on West’s GPU.
 
-**Before starting:** [create the infrastructure](SETUP.md) once, then [connect and check the GPUs](OPERATIONS.md#connect). If repeating the demo, [reset it first](OPERATIONS.md#reset).
+## Before you start
+
+- **Starting from scratch?** If you haven't created the Fleet and GPU members, please follow the [shared infrastructure setup](../../shared/SETUP.md) first.
+- **Already set up, or coming from Example 2?** Reuse your existing infrastructure. Follow [Connect and check the GPUs](../../shared/CONNECT.md) with your resource group and Fleet.
+- **Repeating this example?** [Reset its previous training job](OPERATIONS.md#reset) before running it again.
+
+Example 2 and Kubeflow Pipelines are not required. Once connected, continue below.
+
+From the repository root:
+
+```bash
+export DEMO="$PWD/examples/01-regional-gpu-training"
+```
 
 ## 1. Prepare the namespace
 
@@ -19,7 +31,7 @@ hub wait crp/gpu-training-namespace \
 > Tell Fleet to send the training job to East, where it runs once the GPU and software are ready.
 
 ```bash
-hub create -f "$DEMO/manifests/pytorchjob.yaml"
+hub create -f "$SHARED/manifests/pytorchjob.yaml"
 hub create -f "$DEMO/manifests/placement.yaml"
 hub -n gpu-training get resourceplacement gpu-training
 
@@ -56,7 +68,7 @@ Expect successful GPU training on West and removal of the old job from East. **W
 
 ## Useful links
 
-- [Open the Kubeflow dashboard](DASHBOARD.md) — shows East’s local Kubeflow environment.
+- [Open the Kubeflow dashboard](../../shared/KUBEFLOW.md) — shows East’s local Kubeflow environment.
 - [Reset, troubleshoot, or clean up](OPERATIONS.md#reset).
 - [Rehearsal results](VALIDATION.md) — real A100 → T4 GPU execution verified.
-- [Upcoming: Pipelines / Argo → remote training](../02-pipelines-remote-training/README.md).
+- [Also available: Kubeflow Pipelines → remote training](../02-pipelines-remote-training/README.md).
