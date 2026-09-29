@@ -2,17 +2,36 @@
 
 This installation is required for Example 2 and optional for Example 1. Both use the [shared infrastructure](SETUP.md). The full Kubeflow installation below adds the familiar dashboard and Pipelines UI to **East**, for discussing the existing workflow. It takes longer and needs extra CPU capacity. Continue with Example 2 to connect a pipeline to Fleet.
 
-If Kubeflow is already installed, jump to **Open the dashboard**. Run these commands from the repository root after [connecting](CONNECT.md) to define the environment and `east()`.
+Run these commands from the repository root after [connecting](CONNECT.md) to define the environment and `east()`.
+
+## Check your current state
+
+> See which prerequisites already exist before installing anything.
+
+```bash
+az aks nodepool list -g "$RG" --cluster-name "$EAST" \
+  --query '[].{Pool:name,Nodes:count,Size:vmSize,State:provisioningState}' -o table
+east get nodes -l kubernetes.azure.com/agentpool=kubeflow
+east -n kubeflow get deployments
+east get namespace kubeflow-user-example-com --ignore-not-found
+```
+
+If only `training-operator` is present, continue with installation: Pipelines is still missing. If `ml-pipeline` and `centraldashboard` already exist, check their rollout status and the user namespace before skipping to **Open the dashboard**. For a partial installation, resume the remaining steps below.
 
 ## Install Kubeflow v1.11.0
 
 > Add Kubeflow’s web interface and supporting services to East.
 
-Add regular CPU capacity, leaving GPU nodes for training:
+If the `kubeflow` pool already exists, skip this creation command and confirm its two nodes are Ready before continuing. Resolve an incomplete pool operation instead of trying to create the same pool again. If the pool is absent, add regular CPU capacity, leaving GPU nodes for training:
 
 ```bash
 az aks nodepool add -g "$RG" --cluster-name "$EAST" --name kubeflow \
   --mode User --node-count 2 --node-vm-size Standard_D8as_v5
+```
+
+Prepare the local tools. If `.cache/kubeflow-manifests` already exists from this guide, reuse it after confirming `git -C .cache/kubeflow-manifests describe --tags --exact-match` reports `v1.11.0`; skip the clone command.
+
+```bash
 mkdir -p .cache/bin
 git clone --depth 1 --branch v1.11.0 \
   https://github.com/kubeflow/manifests.git .cache/kubeflow-manifests
@@ -65,6 +84,11 @@ done
 east -n kubeflow rollout status deployment/centraldashboard --timeout=600s
 east -n kubeflow rollout status deployment/training-operator --timeout=300s
 east -n kubeflow rollout status deployment/ml-pipeline --timeout=600s
+east -n kubeflow rollout status deployment/profiles-deployment --timeout=600s
+east -n kubeflow rollout status deployment/workflow-controller --timeout=600s
+east -n auth rollout status deployment/dex --timeout=300s
+east -n oauth2-proxy rollout status deployment/oauth2-proxy --timeout=300s
+east wait --for=create namespace/kubeflow-user-example-com --timeout=300s
 east get pods -A
 east get pvc -A
 ```
