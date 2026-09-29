@@ -6,6 +6,8 @@ If Kubeflow is already installed, jump to **Open the dashboard**. Run these comm
 
 ## Install Kubeflow v1.11.0
 
+> Add Kubeflow’s web interface and supporting services to East.
+
 Add regular CPU capacity, leaving GPU nodes for training:
 
 ```bash
@@ -70,6 +72,8 @@ east get pvc -A
 Resolve failed workloads and unbound PVCs before presenting. The unchanged upstream example uses email `user@example.com` and password `12341234`, as documented in the release README. If you customized Dex, use your configured credentials instead. Keep the demo private and access it through the localhost tunnel below.
 
 ## Open the dashboard
+
+> Open East’s Kubeflow interface in your browser to explore its local environment.
 
 In a separate terminal, with the same connection setup:
 

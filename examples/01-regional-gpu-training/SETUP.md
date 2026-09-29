@@ -6,6 +6,8 @@ Use a **dedicated** resource group. Two GPU-capable members are sufficient for t
 
 ## 1. Variables and quota
 
+> Choose the regions and GPU types, then check how much GPU capacity your account is allowed to request.
+
 ```bash
 az login
 az extension add --name fleet --upgrade
@@ -38,6 +40,8 @@ done
 These selections use one A100 / 24 vCPUs in East and one T4 / 4 vCPUs in West. East T4 Spot allocation failed during rehearsal; the A100 is an alternative, not a Fleet requirement. If T4 capacity is available in your first region, set `EAST_GPU_SKU=Standard_NC4as_T4_v3` for a smaller pool. Regular nodes require suitable family and regional quota. Spot uses a separate quota and is interruptible. Quota and unrestricted SKUs do not guarantee allocation capacity. Choose regions where allocation succeeds.
 
 ## 2. Create the hub and members
+
+> Create one central Fleet hub and two clusters where the training jobs can run.
 
 Run both AKS creation commands and wait for each to succeed before joining the members. Stop and resolve any error before continuing.
 
@@ -80,6 +84,8 @@ The role assignment can take a few minutes to propagate. If using a service prin
 
 ### Connect kubectl to the three clusters
 
+> Connect your terminal to the hub, East, and West so each command goes to the intended cluster.
+
 In the same terminal, download credentials for the Fleet and members in **your current `$RG`**. This updates the local demo kubeconfig files, including any left over from an earlier rehearsal.
 
 ```bash
@@ -101,6 +107,8 @@ west get nodes
 `hub`, `east`, and `west` are shell functions, not installed commands. They forward every argument to `kubectl` using the corresponding kubeconfig. For example, `east get nodes` means `kubectl --kubeconfig "$STATE/east" get nodes`. Keep using this terminal for the remaining steps; in a new terminal, use [Operations: Connect](OPERATIONS.md#connect). GPU nodes are added next.
 
 ## 3. Add a GPU pool to each member
+
+> Add one GPU machine to each cluster and make its GPU available to training jobs.
 
 **Choose one option.** If section 1 showed zero regular quota for your selected GPU families, use **Spot** below. Spot nodes can be evicted; the system pools remain regular. Wait for the whole loop to finish successfully before installing the device plugin.
 
@@ -156,9 +164,13 @@ Do not continue without at least one allocatable GPU on each member. A DaemonSet
 
 ## 4. Install Training Operator on members; only the CRD on the hub
 
+> Teach the hub to store training requests and equip both clusters to carry them out.
+
 The members need **Training Operator** to run jobs. The hub needs only the **PyTorchJob CRD** to store their definitions. Both use the same pinned release, **v1.9.2**.
 
 ### On East and West: install the operator
+
+> Install the software that turns a training request into a running job on each cluster.
 
 Skip installation on a member if it already has this operator from the optional full Kubeflow setup.
 
@@ -176,6 +188,8 @@ Expect `deployment "training-operator" successfully rolled out` for both members
 
 ### On the hub: install only the job definition
 
+> Let the hub recognize and store training requests without running the training itself.
+
 ```bash
 hub apply --server-side -f \
   'https://raw.githubusercontent.com/kubeflow/training-operator/v1.9.2/manifests/base/crds/kubeflow.org_pytorchjobs.yaml'
@@ -185,6 +199,8 @@ hub wait crd/pytorchjobs.kubeflow.org --for=condition=Established --timeout=60s
 Expect `serverside-applied`, then `condition met`. This installs the `kubeflow.org/v1` PyTorchJob API, not an operator or a training workload.
 
 ### Check the members
+
+> Confirm that both clusters are connected to Fleet.
 
 ```bash
 hub get memberclusters

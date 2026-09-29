@@ -4,6 +4,7 @@
 
 ## Connect
 
+> Connect your terminal to the correct clusters and check that their GPUs are available.
 
 For a prepared environment, run these commands in **Bash or zsh** from the repository root. For new infrastructure, follow [SETUP.md](SETUP.md) first.
 
@@ -38,6 +39,7 @@ Expect two joined, healthy members and at least one allocatable GPU on each. The
 
 ## Reset
 
+> Remove this demo’s training jobs so you can run it again while keeping the clusters and GPUs.
 
 These commands delete only this example's job and placement, preserving the namespace and infrastructure. Wait for cleanup before recreating the source job.
 
@@ -54,6 +56,7 @@ Then repeat [Run in East](README.md#2-run-in-east). `kubectl wait --for=delete` 
 
 ## Troubleshooting
 
+> Check where the job is stuck and what is preventing it from running.
 
 ```bash
 hub -n gpu-training describe resourceplacement gpu-training
@@ -68,11 +71,11 @@ east -n gpu-training get events --sort-by=.lastTimestamp
 
 `Pending` / insufficient `nvidia.com/gpu`: inspect GPU nodes and the device plugin. `ImagePullBackOff`: inspect pod events and registry connectivity. Placement `Applied=False`: check that the destination has the PyTorchJob CRD and namespace. Placement `Available=True` alone does not prove GPU execution or training success.
 
-
 PyTorchJob availability is not tracked by Fleet. The Work reports `NotTrackable`; the top-level placement can report `Available=True` while the training pod is Pending. Check the member’s PyTorchJob `Succeeded` condition and logs. The hub source job does not automatically receive member training status. See [Fleet availability checks](https://kubefleet.dev/docs/concepts/safe-rollout/).
 
 ## Cleanup
 
+> Remove the demo when finished, or delete its entire dedicated resource group to remove the infrastructure too.
 
 To remove only the example, reset it first, then run:
 

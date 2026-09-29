@@ -6,7 +6,7 @@ Run one Kubeflow PyTorchJob on East’s GPU, then change its Fleet placement to 
 
 ## 1. Prepare the namespace
 
-Fleet creates the namespace on both members; a separate placement controls where the job runs.
+> Create a separate workspace for this demo on both clusters.
 
 ```bash
 hub apply -f "$DEMO/manifests/namespace.yaml"
@@ -15,6 +15,8 @@ hub wait crp/gpu-training-namespace \
 ```
 
 ## 2. Run in East
+
+> Tell Fleet to send the training job to East, where it runs once the GPU and software are ready.
 
 ```bash
 hub create -f "$DEMO/manifests/pytorchjob.yaml"
@@ -32,6 +34,8 @@ west -n gpu-training get pytorchjobs
 Expect the GPU name, decreasing loss, and `TRAINING_SUCCEEDED device=cuda`. West should have no job yet. **Check the member’s `Succeeded` condition: Fleet’s `Available=True` does not prove training success.**
 
 ## 3. Switch to West
+
+> After East finishes, tell Fleet to run the same job from the beginning in West and remove its old copy from East.
 
 After East succeeds, change only the placement:
 
