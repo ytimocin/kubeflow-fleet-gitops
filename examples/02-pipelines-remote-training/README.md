@@ -18,7 +18,7 @@ East does not hardcode West as the training destination. A platform administrato
 
 > Give the pipeline permission to submit work and check its result.
 
-Complete [SETUP.md](SETUP.md), including Kubeflow Pipelines on East. Keep its terminal variables and functions loaded.
+Complete [SETUP.md](SETUP.md): shared infrastructure plus Kubeflow Pipelines on East. You do not need to run Example 1. Keep its terminal variables and functions loaded.
 
 ## 2. Compile and run
 
@@ -30,7 +30,7 @@ From the repository root:
 .venv/bin/python "$PIPELINE_DEMO/pipeline.py" --output "$STATE/remote-training-pipeline.yaml"
 ```
 
-In a separate terminal, load the [connection settings](../01-regional-gpu-training/OPERATIONS.md#connect) and keep this running:
+In a separate terminal, load the [connection settings](../../shared/CONNECT.md) and keep this running:
 
 ```bash
 east -n istio-system port-forward svc/istio-ingressgateway 8080:80 --address 127.0.0.1
@@ -86,7 +86,7 @@ To restore the remote example, set East's label to `false` and West's to `true` 
 
 ## What this adds—and what remains
 
-This example adds a submission and result-waiting component to a real Kubeflow pipeline. The component knows the hub and has read connections to the possible members; the pipeline author does not select a member. It reuses Example 1's small synthetic GPU training job.
+This example adds a submission and result-waiting component to a real Kubeflow pipeline. The component knows the hub and has read connections to the possible members; the pipeline author does not select a member. It uses the small synthetic GPU training job in `shared/manifests/pytorchjob.yaml`.
 
 It does not automatically convert an existing pipeline, provide GPU capacity reservation, transfer data/checkpoints, or migrate a running process. Production integration also needs durable authentication, shared artifact storage, and cancellation/cleanup handling.
 

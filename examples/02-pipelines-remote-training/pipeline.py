@@ -7,7 +7,7 @@ from kfp import compiler, dsl, kubernetes
 import yaml
 
 HERE = Path(__file__).resolve().parent
-JOB = yaml.safe_load((HERE.parent / '01-regional-gpu-training/manifests/pytorchjob.yaml').read_text())
+JOB = yaml.safe_load((HERE.parents[1] / 'shared/manifests/pytorchjob.yaml').read_text())
 PLACEMENT = yaml.safe_load((HERE / 'manifests/placement.yaml').read_text())
 RUNNER = (HERE / 'scripts/remote-training.py').read_text()
 

@@ -1,14 +1,14 @@
 # Setup: Pipelines with Fleet
 
-Run commands from the repository root. This builds on Example 1's Fleet hub, two GPU members, NVIDIA device plugins, and Training Operator.
+Run commands from the repository root. This example uses the shared Fleet hub, two GPU members, NVIDIA device plugins, and Training Operator. You do not need to run Example 1.
 
 ## 1. Prepare East's pipeline service
 
 > Install the interface and services that run the pipeline on East.
 
-Complete [Example 1 setup](../01-regional-gpu-training/SETUP.md), then the [Kubeflow dashboard installation](../01-regional-gpu-training/DASHBOARD.md). The full installation includes Pipelines; standalone Training Operator alone is insufficient. Skip installation if those services already exist.
+Complete [shared infrastructure setup](../../shared/SETUP.md), then the [Kubeflow dashboard and Pipelines installation](../../shared/KUBEFLOW.md). The full installation includes Pipelines; standalone Training Operator alone is insufficient. Skip installation if those services already exist.
 
-Load [connection settings](../01-regional-gpu-training/OPERATIONS.md#connect), using **your** resource group and Fleet. Then:
+Load [shared connection settings](../../shared/CONNECT.md), using **your** resource group and Fleet. Then:
 
 ```bash
 export PIPELINE_DEMO="$PWD/examples/02-pipelines-remote-training"
@@ -35,7 +35,7 @@ az fleet member update -g "$RG" -f "$FLEET" -n "$WEST" \
 hub get memberclusters -L demo.kubefleet.io/gpu-worker
 ```
 
-Wait for East `false` and West `true` before running. These commands set this dedicated demo's user labels; preserve any other user labels if adapting an existing Fleet. Verify GPUs with Example 1's node checks. This label expresses eligibility, not current free GPU capacity.
+Wait for East `false` and West `true` before running. These commands set this dedicated demo's user labels; preserve any other user labels if adapting an existing Fleet. Verify GPUs with the shared connection guide’s node checks. This label expresses eligibility, not current free GPU capacity.
 
 ## 3. Create the training namespace and scoped access
 
