@@ -156,30 +156,52 @@ Do not continue without at least one allocatable GPU on each member. A DaemonSet
 
 ## 4. Install Training Operator on members; only the CRD on the hub
 
-This example uses Training Operator **v1.9.2** and `kubeflow.org/v1` **PyTorchJob**, not the newer Trainer `TrainJob` API. If the optional full Kubeflow installation already provides this operator, skip its install on that member.
+The members need **Training Operator** to run jobs. The hub needs only the **PyTorchJob CRD** to store their definitions. Both use the same pinned release, **v1.9.2**.
+
+### On East and West: install the operator
+
+Skip installation on a member if it already has this operator from the optional full Kubeflow setup.
 
 ```bash
 east apply --server-side -k \
   'github.com/kubeflow/training-operator.git/manifests/overlays/standalone?ref=v1.9.2'
 west apply --server-side -k \
   'github.com/kubeflow/training-operator.git/manifests/overlays/standalone?ref=v1.9.2'
+
 east -n kubeflow rollout status deployment/training-operator --timeout=300s
 west -n kubeflow rollout status deployment/training-operator --timeout=300s
+```
 
-# Copy only the CRD schema, excluding runtime metadata and status.
-east get crd pytorchjobs.kubeflow.org -o json | python3 -c '
-import json, sys
-obj = json.load(sys.stdin)
-json.dump({"apiVersion": obj["apiVersion"], "kind": obj["kind"],
-           "metadata": {"name": obj["metadata"]["name"]}, "spec": obj["spec"]}, sys.stdout)
-' > "$STATE/pytorchjob-crd.json"
-hub apply --server-side -f "$STATE/pytorchjob-crd.json"
+Expect `deployment "training-operator" successfully rolled out` for both members.
+
+### On the hub: install only the job definition
+
+```bash
+hub apply --server-side -f \
+  'https://raw.githubusercontent.com/kubeflow/training-operator/v1.9.2/manifests/base/crds/kubeflow.org_pytorchjobs.yaml'
 hub wait crd/pytorchjobs.kubeflow.org --for=condition=Established --timeout=60s
-hub api-resources --api-group=placement.kubernetes-fleet.io
+```
+
+Expect `serverside-applied`, then `condition met`. This installs the `kubeflow.org/v1` PyTorchJob API, not an operator or a training workload.
+
+### Check the members
+
+```bash
 hub get memberclusters
 ```
 
-Ensure the hub serves `ResourcePlacement` and `ClusterResourcePlacement` in `v1`. The namespace-only selector requires Fleet support; verify against your managed hub rather than assuming every Fleet version matches upstream.
+Both should show `JOINED=True` with recent agent heartbeats. Setup is complete.
+
+<details>
+<summary>Optional: check Fleet API compatibility</summary>
+
+```bash
+hub api-resources --api-group=placement.kubernetes-fleet.io
+```
+
+Look for `resourceplacements` and `clusterresourceplacements` serving `placement.kubernetes-fleet.io/v1`. The namespace-only selector also requires support in your managed Fleet version. This example uses Training Operator's PyTorchJob, not the newer Trainer TrainJob API.
+
+</details>
 
 Now run [the three-step demo](README.md#1-prepare-the-namespace). Optionally install the [Kubeflow dashboard](DASHBOARD.md) on East.
 
