@@ -76,7 +76,29 @@ az role assignment create --assignee-object-id "$object_id" \
   --role 'Azure Kubernetes Fleet Manager RBAC Cluster Admin' --scope "$fleet_id"
 ```
 
-The role assignment can take a few minutes to propagate. If using a service principal, use its object ID and `ServicePrincipal` instead of `User`. Run the connection block in [Operations: Connect](OPERATIONS.md#connect) to define `hub`, `east`, and `west`. On a fresh installation its GPU checks will show no GPU nodes yet; add them in the next section.
+The role assignment can take a few minutes to propagate. If using a service principal, use its object ID and `ServicePrincipal` instead of `User`.
+
+### Connect kubectl to the three clusters
+
+In the same terminal, download credentials for the Fleet and members in **your current `$RG`**. This updates the local demo kubeconfig files, including any left over from an earlier rehearsal.
+
+```bash
+az fleet get-credentials -g "$RG" -n "$FLEET" --file "$STATE/hub" --overwrite-existing
+az aks get-credentials -g "$RG" -n "$EAST" --file "$STATE/east" --overwrite-existing
+az aks get-credentials -g "$RG" -n "$WEST" --file "$STATE/west" --overwrite-existing
+kubelogin convert-kubeconfig -l azurecli --kubeconfig "$STATE/hub"
+chmod 600 "$STATE/hub" "$STATE/east" "$STATE/west"
+
+hub() { kubectl --kubeconfig "$STATE/hub" "$@"; }
+east() { kubectl --kubeconfig "$STATE/east" "$@"; }
+west() { kubectl --kubeconfig "$STATE/west" "$@"; }
+
+hub get memberclusters
+east get nodes
+west get nodes
+```
+
+`hub`, `east`, and `west` are shell functions, not installed commands. They forward every argument to `kubectl` using the corresponding kubeconfig. For example, `east get nodes` means `kubectl --kubeconfig "$STATE/east" get nodes`. Keep using this terminal for the remaining steps; in a new terminal, use [Operations: Connect](OPERATIONS.md#connect). GPU nodes are added next.
 
 ## 3. Add a GPU pool to each member
 
