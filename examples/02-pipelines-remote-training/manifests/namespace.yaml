@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pipeline-training
+---
+apiVersion: placement.kubernetes-fleet.io/v1
+kind: ClusterResourcePlacement
+metadata:
+  name: pipeline-training-namespace
+spec:
+  resourceSelectors:
+    - group: ""
+      version: v1
+      kind: Namespace
+      name: pipeline-training
+      selectionScope: NamespaceOnly
+  policy:
+    placementType: PickFixed
+    clusterNames: [demo-east, demo-west]

@@ -1,6 +1,6 @@
 # Optional Kubeflow dashboard on East
 
-The Fleet GPU placement demo only needs Training Operator. The full Kubeflow installation below adds the familiar dashboard and Pipelines UI to **East**, for discussing the existing workflow. It takes longer and needs extra CPU capacity. It does not implement the upcoming remote pipeline example.
+The Fleet GPU placement demo only needs Training Operator. The full Kubeflow installation below adds the familiar dashboard and Pipelines UI to **East**, for discussing the existing workflow. It takes longer and needs extra CPU capacity. Continue with Example 2 to connect a pipeline to Fleet.
 
 If Kubeflow is already installed, jump to **Open the dashboard**. Run these commands from the repository root after [connecting](OPERATIONS.md#connect) to define the environment and `east()`.
 
@@ -83,6 +83,6 @@ east -n istio-system port-forward svc/istio-ingressgateway 8080:80 --address 127
 
 Open **http://localhost:8080/oauth2/start**, sign in using the installed demo account, and select the user's profile. You can show the Kubeflow home page and Pipelines UI. Ctrl+C closes the tunnel.
 
-The dedicated `gpu-training` namespace in Example 1 is not a Kubeflow user Profile. Do not expect its PyTorchJobs to appear in every dashboard view. The dashboard also cannot show West's job status automatically. Show the terminal's GPU logs and member PyTorchJob status beside the dashboard; integrating remote results into a pipeline is the [upcoming example](../02-pipelines-remote-training/README.md).
+The dedicated `gpu-training` namespace in Example 1 is not a Kubeflow user Profile. Do not expect its PyTorchJobs to appear in every dashboard view. The dashboard also cannot show West's job status automatically. Show the terminal's GPU logs and member PyTorchJob status beside the dashboard; integrating remote results into a pipeline is the [second example](../02-pipelines-remote-training/README.md).
 
 Source: [Kubeflow manifests v1.11.0](https://github.com/kubeflow/manifests/tree/v1.11.0).

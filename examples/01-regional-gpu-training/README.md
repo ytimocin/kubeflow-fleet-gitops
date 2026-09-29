@@ -59,4 +59,4 @@ Expect successful GPU training on West and removal of the old job from East. **W
 - [Open the Kubeflow dashboard](DASHBOARD.md) — shows East’s local Kubeflow environment.
 - [Reset, troubleshoot, or clean up](OPERATIONS.md#reset).
 - [Rehearsal results](VALIDATION.md) — real A100 → T4 GPU execution verified.
-- [Upcoming: Pipelines / Argo → remote training](../02-pipelines-remote-training/README.md).
+- [Next: Kubeflow Pipelines → remote training](../02-pipelines-remote-training/README.md).

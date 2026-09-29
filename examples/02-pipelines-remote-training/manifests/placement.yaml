@@ -1,0 +1,21 @@
+apiVersion: placement.kubernetes-fleet.io/v1
+kind: ResourcePlacement
+metadata:
+  name: replaced-with-run-id
+  namespace: pipeline-training
+spec:
+  resourceSelectors:
+    - group: kubeflow.org
+      version: v1
+      kind: PyTorchJob
+      name: replaced-with-run-id
+  policy:
+    placementType: PickN
+    numberOfClusters: 1
+    affinity:
+      clusterAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          clusterSelectorTerms:
+            - labelSelector:
+                matchLabels:
+                  demo.kubefleet.io/gpu-worker: "true"
