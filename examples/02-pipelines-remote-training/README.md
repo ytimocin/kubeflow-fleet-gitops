@@ -14,11 +14,17 @@ East does not hardcode West as the training destination. A platform administrato
 
 **“Suitable” means labeled GPU-capable in this example.** The label does not measure free GPUs or reserve capacity. Kubernetes may queue the training pod if its GPU is busy. Fleet places the resource; Training Operator and Kubernetes execute it.
 
+## Before you start
+
+- **Coming from Example 1?** Reuse your Fleet and GPU members. If you haven't installed Kubeflow Pipelines on East, please follow the [shared Kubeflow installation guide](../../shared/KUBEFLOW.md) first. Example 1's Training Operator alone is not enough.
+- **Starting from scratch?** Follow the [shared infrastructure setup](../../shared/SETUP.md), then [install Kubeflow Pipelines on East](../../shared/KUBEFLOW.md). You do not need to run Example 1.
+- **Already have both?** [Connect to your existing environment](../../shared/CONNECT.md), then continue below.
+
 ## 1. Prepare the connection
 
 > Give the pipeline permission to submit work and check its result.
 
-Complete [SETUP.md](SETUP.md): shared infrastructure plus Kubeflow Pipelines on East. You do not need to run Example 1. Keep its terminal variables and functions loaded.
+Follow [this example’s setup](SETUP.md) to check Pipelines, label the eligible GPU member, and configure access. Keep its terminal variables and functions loaded.
 
 ## 2. Compile and run
 

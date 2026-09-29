@@ -2,7 +2,13 @@
 
 Run one Kubeflow PyTorchJob on East’s GPU, then change its Fleet placement to run it on West’s GPU.
 
-**Run independently:** complete the [shared infrastructure setup](../../shared/SETUP.md) once, then [connect and check the GPUs](../../shared/CONNECT.md). Example 2 and Kubeflow Pipelines are not required. If repeating this demo, [reset it first](OPERATIONS.md#reset).
+## Before you start
+
+- **Starting from scratch?** If you haven't created the Fleet and GPU members, please follow the [shared infrastructure setup](../../shared/SETUP.md) first.
+- **Already set up, or coming from Example 2?** Reuse your existing infrastructure. Follow [Connect and check the GPUs](../../shared/CONNECT.md) with your resource group and Fleet.
+- **Repeating this example?** [Reset its previous training job](OPERATIONS.md#reset) before running it again.
+
+Example 2 and Kubeflow Pipelines are not required. Once connected, continue below.
 
 From the repository root:
 

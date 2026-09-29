@@ -6,9 +6,23 @@ Run commands from the repository root. This example uses the shared Fleet hub, t
 
 > Install the interface and services that run the pipeline on East.
 
-Complete [shared infrastructure setup](../../shared/SETUP.md), then the [Kubeflow dashboard and Pipelines installation](../../shared/KUBEFLOW.md). The full installation includes Pipelines; standalone Training Operator alone is insufficient. Skip installation if those services already exist.
+Choose your starting point:
 
-Load [shared connection settings](../../shared/CONNECT.md), using **your** resource group and Fleet. Then:
+| Your starting point | What to do first |
+| --- | --- |
+| Coming from Example 1 | Reuse the Fleet and GPU members. If you haven't installed Pipelines on East, please follow [shared Kubeflow installation](../../shared/KUBEFLOW.md). |
+| Starting from scratch | Complete [shared infrastructure setup](../../shared/SETUP.md), then [shared Kubeflow installation](../../shared/KUBEFLOW.md). You do not need to run Example 1. |
+| Fleet, GPU members, and Pipelines already installed | Skip installation and connect below. |
+
+Load [shared connection settings](../../shared/CONNECT.md), using **your** resource group and Fleet. Confirm Pipelines is installed:
+
+```bash
+east -n kubeflow get deployment ml-pipeline
+```
+
+**If this says `NotFound`, stop here and complete the [Kubeflow installation](../../shared/KUBEFLOW.md).** Training Operator and the GPU device plugin do not install Pipelines. The `rollout status` command below only waits for an existing deployment; it does not create one.
+
+Once the deployment exists, prepare the local tools and wait for it to be ready:
 
 ```bash
 export PIPELINE_DEMO="$PWD/examples/02-pipelines-remote-training"
