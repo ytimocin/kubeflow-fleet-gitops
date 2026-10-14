@@ -2,7 +2,7 @@
 
 Run from the repository root in Bash or zsh. Requires Azure CLI with `fleet` support, `kubectl`, `kubelogin`, Python 3, Git, and permission to create AKS/Fleet and assign the Fleet data-plane role. Allow provisioning and image-pull time before the meeting.
 
-Use a **dedicated** resource group. Both examples use this same infrastructure. Create it once, then run either example in any order. Fleet does not create GPU capacity or bypass Azure quota.
+Use a **dedicated** resource group. All examples reuse this infrastructure. Create it once, then run them in any order; Example 3 prepares one additional GPU cluster. Fleet does not create GPU capacity or bypass Azure quota.
 
 ## 1. Variables and quota
 
@@ -219,13 +219,13 @@ Look for `resourceplacements` and `clusterresourceplacements` serving `placement
 
 </details>
 
-Choose either [regional GPU training](../examples/01-regional-gpu-training/README.md) or [Pipelines with remote training](../examples/02-pipelines-remote-training/README.md). Neither requires running the other. Example 2 additionally needs [Kubeflow Pipelines on East](KUBEFLOW.md); this is optional for Example 1.
+Choose [regional GPU training](../examples/01-regional-gpu-training/README.md), [Pipelines with remote training](../examples/02-pipelines-remote-training/README.md), or [add a GPU member](../examples/03-add-gpu-member/README.md). They do not require running in order. Example 2 additionally needs [Kubeflow Pipelines on East](KUBEFLOW.md); Examples 1 and 3 need only Training Operator.
 
 References: [Azure Fleet creation](https://learn.microsoft.com/en-us/azure/kubernetes-fleet/quickstart-create-fleet-and-members), [AKS GPUs](https://learn.microsoft.com/en-us/azure/aks/use-nvidia-gpu), [AKS Spot pools](https://learn.microsoft.com/en-us/azure/aks/spot-node-pool), [Fleet v1 API](https://kubefleet.dev/docs/api-reference/placement.kubernetes-fleet.io/v1/), [Training Operator v1.9.2](https://github.com/kubeflow/training-operator/tree/v1.9.2).
 
 ## Cleanup shared infrastructure
 
-> Delete the shared environment only when you are finished with both examples.
+> Delete the shared environment only when you are finished with all examples.
 
 This removes **all resources in your dedicated demo resource group**, including Fleet, AKS, and their managed resources. For removing just one example's jobs, use that example's cleanup instructions instead.
 

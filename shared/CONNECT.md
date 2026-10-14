@@ -31,6 +31,6 @@ west get nodes -l kubernetes.azure.com/accelerator=nvidia \
   -o 'custom-columns=NAME:.metadata.name,GPU:.status.allocatable.nvidia\.com/gpu'
 ```
 
-Expect two joined, healthy members and at least one allocatable GPU on each. The manifests use the **Fleet member names** `demo-east` and `demo-west`; adjust your chosen example’s manifests if you join members under different names.
+Expect the existing members to be joined and healthy, with at least one allocatable GPU on East and West. The initial setup has two members; Example 3 adds a third. The first two examples use the **Fleet member names** `demo-east` and `demo-west`; adjust your chosen example’s manifests if you join members under different names.
 
-Now open either [Example 1](../examples/01-regional-gpu-training/README.md) or [Example 2](../examples/02-pipelines-remote-training/README.md).
+Now open [Example 1](../examples/01-regional-gpu-training/README.md), [Example 2](../examples/02-pipelines-remote-training/README.md), or [Example 3: add a GPU member](../examples/03-add-gpu-member/README.md). Example 3 defines a separate `newmember` helper for the additional cluster.
