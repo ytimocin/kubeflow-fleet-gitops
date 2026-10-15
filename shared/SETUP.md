@@ -37,7 +37,7 @@ for location_sku in "$EAST_REGION:$EAST_GPU_SKU" "$WEST_REGION:$WEST_GPU_SKU"; d
 done
 ```
 
-These selections use one A100 / 24 vCPUs in East and one T4 / 4 vCPUs in West. East T4 Spot allocation failed during rehearsal; the A100 is an alternative, not a Fleet requirement. If T4 capacity is available in your first region, set `EAST_GPU_SKU=Standard_NC4as_T4_v3` for a smaller pool. Regular nodes require suitable family and regional quota. Spot uses a separate quota and is interruptible. Quota and unrestricted SKUs do not guarantee allocation capacity. Choose regions where allocation succeeds.
+These selections use one A100 / 24 vCPUs in East and one T4 / 4 vCPUs in West. East T4 Spot allocation failed during validation; the A100 is an alternative, not a Fleet requirement. If T4 capacity is available in your first region, set `EAST_GPU_SKU=Standard_NC4as_T4_v3` for a smaller pool. Regular nodes require suitable family and regional quota. Spot uses a separate quota and is interruptible. Quota and unrestricted SKUs do not guarantee allocation capacity. Choose regions where allocation succeeds.
 
 ## 2. Create the hub and members
 
@@ -86,7 +86,7 @@ The role assignment can take a few minutes to propagate. If using a service prin
 
 > Connect your terminal to the hub, East, and West so each command goes to the intended cluster.
 
-In the same terminal, download credentials for the Fleet and members in **your current `$RG`**. This updates the local demo kubeconfig files, including any left over from an earlier rehearsal.
+In the same terminal, download credentials for the Fleet and members in **your current `$RG`**. This updates the local demo kubeconfig files, including any left over from an earlier run.
 
 ```bash
 az fleet get-credentials -g "$RG" -n "$FLEET" --file "$STATE/hub" --overwrite-existing
@@ -112,7 +112,7 @@ west get nodes
 
 **Choose one option.** If section 1 showed zero regular quota for your selected GPU families, use **Spot** below. Spot nodes can be evicted; the system pools remain regular. Wait for the whole loop to finish successfully before installing the device plugin.
 
-Spot GPUs (used for this rehearsal because regular GPU quota was unavailable):
+Spot GPUs (used for this validation because regular GPU quota was unavailable):
 
 ```bash
 for cluster in "$EAST" "$WEST"; do
