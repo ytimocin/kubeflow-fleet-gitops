@@ -7,13 +7,11 @@ The walkthrough has three distinct gates: Azure membership succeeds, the hub rep
 ## Before you start
 
 - Reuse the hub and two members from [shared setup](../../shared/SETUP.md), or [connect to an existing Fleet](../../shared/CONNECT.md).
-- Complete [off-camera preparation](SETUP.md) to provision `demo-gpu`, install its GPU device plugin and Training Operator, and define `hub` / `newmember` shell helpers. Leave it outside the Fleet for the opening shot.
+- Complete [setup](SETUP.md) to provision `demo-gpu`, install its GPU device plugin and Training Operator, and define `hub` / `newmember` shell helpers. Leave it outside the Fleet until the membership step below.
 - Examples 1 and 2 do not need to be running. Full Kubeflow and Pipelines are not required on the new member.
-- Repeating the demo? Use [reset](OPERATIONS.md#reset-the-training-job) first. To record the join again, also [remove only the new membership](OPERATIONS.md#repeat-the-join-shot).
+- Repeating the demo? Use [reset](OPERATIONS.md#reset-the-training-job) first. To repeat member registration, also [remove only the new membership](OPERATIONS.md#repeat-member-registration).
 
 The supplied manifests use Fleet member name `demo-gpu` and namespace `member-expansion`. If you choose another member name, update `clusterNames` in both manifests. The AKS cluster name and Fleet member name are the same in this walkthrough.
-
-For a spoken script with commands immediately after each cue, use [RECORDING.md](RECORDING.md). Provisioning, authentication, image pulls, and reconciliation waits happen off camera.
 
 ## 1. Show the existing Fleet and the new cluster
 
@@ -36,7 +34,7 @@ az fleet member create --subscription "$SUBSCRIPTION" \
   -o none --no-wait
 ```
 
-This requests membership; `--no-wait` does not mean joining has completed. Wait off camera:
+This requests membership; `--no-wait` does not mean joining has completed. Wait for completion:
 
 ```bash
 az fleet member wait --subscription "$SUBSCRIPTION" \
@@ -46,7 +44,7 @@ hub wait --for=create membercluster/"$NEW_MEMBER" --timeout=300s
 hub wait membercluster/"$NEW_MEMBER" --for=condition=Joined --timeout=300s
 ```
 
-Resume recording with:
+Verify the joined member:
 
 ```bash
 hub get memberclusters
@@ -62,7 +60,7 @@ A ClusterResourcePlacement can distribute cluster-scoped resources; here it crea
 hub apply -f "$EXPANSION/manifests/namespace.yaml"
 ```
 
-Wait off camera before creating the job:
+Wait for the namespace before creating the job:
 
 ```bash
 hub wait crp/member-expansion-namespace \
@@ -85,7 +83,7 @@ hub -n member-expansion get resourceplacement new-member-training
 
 The Kustomize overlay reuses the same [training program](../../shared/manifests/pytorchjob.yaml) as Example 1, changing only its name and namespace. It requests one GPU and asserts CUDA is available; there is no CPU fallback.
 
-Wait off camera:
+Wait for completion:
 
 ```bash
 newmember -n member-expansion wait --for=create \

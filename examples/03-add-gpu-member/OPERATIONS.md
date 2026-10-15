@@ -4,7 +4,7 @@ Load the variables and `hub` / `newmember` functions from [setup](SETUP.md) befo
 
 ## Reset the training job
 
-Use this between full takes. Keep the namespace CRP and Fleet membership if you only want to repeat the training portion.
+Use this between runs. Keep the namespace CRP and Fleet membership if you only want to repeat the training portion.
 
 ```bash
 hub -n member-expansion delete resourceplacement new-member-training \
@@ -19,9 +19,9 @@ hub -n member-expansion get resourceplacements,pytorchjobs
 newmember -n member-expansion get pytorchjobs,pods
 ```
 
-The last two commands should show no demo resources. Keep the actual GPU nodes running for a retake; deleting a placement does not stop or delete the AKS cluster.
+The last two commands should show no demo resources. Keep the actual GPU nodes running to run the example again; deleting a placement does not stop or delete the AKS cluster.
 
-## Repeat the join shot
+## Repeat member registration
 
 First reset the training job above. Then remove this example's namespace placement and confirm member cleanup before removing membership:
 

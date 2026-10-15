@@ -1,6 +1,6 @@
-# Prepare the new GPU cluster — off camera
+# Prepare the new GPU cluster
 
-Run from the repository root in Bash or zsh. Reuse an existing hub-enabled Fleet, its access permissions, and hub PyTorchJob CRD from [shared setup](../../shared/SETUP.md). This guide creates only one additional AKS cluster. It does not join it until the recorded walkthrough.
+Run from the repository root in Bash or zsh. Reuse an existing hub-enabled Fleet, its access permissions, and hub PyTorchJob CRD from [shared setup](../../shared/SETUP.md). This guide creates only one additional AKS cluster. It joins the Fleet in the [example walkthrough](README.md).
 
 ## 1. Set the environment
 
@@ -32,7 +32,7 @@ az vm list-skus --subscription "$SUBSCRIPTION" -l "$NEW_REGION" \
   --query '[].{SKU:name,Restrictions:restrictions}' -o json
 ```
 
-The example uses one Spot A100 and a regular CPU system node. Spot is interruptible. You can choose another supported NVIDIA GPU SKU/region with available capacity; use the actual GPU model in the narration. Regular GPUs additionally need family quota. Do not create a new Fleet or modify East/West pools for this example.
+The example uses one Spot A100 and a regular CPU system node. Spot is interruptible. You can choose another supported NVIDIA GPU SKU/region with available capacity. Regular GPUs additionally need family quota. Do not create a new Fleet or modify East/West pools for this example.
 
 ## 2. Create the cluster and GPU pool
 
@@ -53,7 +53,7 @@ az aks create --subscription "$SUBSCRIPTION" -g "$RG" \
   --generate-ssh-keys -o none
 ```
 
-Then add the GPU pool. Stop if either command fails; do not record until allocation succeeds and the node exposes a GPU.
+Then add the GPU pool. Stop if either command fails; continue only after allocation succeeds and the node exposes a GPU.
 
 ```bash
 az aks nodepool add --subscription "$SUBSCRIPTION" -g "$RG" \
@@ -109,7 +109,7 @@ hub get crd pytorchjobs.kubeflow.org
 
 If the assertion fails, inspect the plugin pods and wait for registration before repeating it. An empty GPU node list or zero desired plugin pods does not pass this check.
 
-## 4. Prepare the join shot
+## 4. Check readiness to join
 
 ```bash
 export NEW_CLUSTER_ID="$(az aks show --subscription "$SUBSCRIPTION" \
@@ -120,6 +120,6 @@ az fleet member list --subscription "$SUBSCRIPTION" -g "$RG" \
 hub get memberclusters
 ```
 
-Before the first join shot, the new member should be absent from both lists. If it is already joined, use the [repeat-join procedure](OPERATIONS.md#repeat-the-join-shot); do not describe an update of an existing membership as a new join.
+Before the first join, the new member should be absent from both lists. If it is already joined, use the [repeat-join procedure](OPERATIONS.md#repeat-member-registration); do not describe an update of an existing membership as a new join.
 
-Prepare two Azure Portal views: the Fleet's **Members** page and the new AKS cluster's **Node pools** page. Then follow [RECORDING.md](RECORDING.md). Keep this preparation, sign-in screens, resource IDs, and long waits out of the recording.
+You can inspect the Fleet's **Members** page and the new AKS cluster's **Node pools** page in Azure Portal. Continue with the [example walkthrough](README.md).
