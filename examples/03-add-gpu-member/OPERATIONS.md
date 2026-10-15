@@ -65,3 +65,9 @@ az aks delete --subscription "$SUBSCRIPTION" -g "$RG" \
 ```
 
 This deletes the additional AKS cluster and its managed infrastructure. Do not delete the shared resource group while the other demos are still needed. GPU nodes incur charges while allocated and Spot nodes can be evicted.
+
+## Use the new member with Demo 2
+
+This example has its own namespace, CRP, RP, and job. It does not change East/West placements or their pipeline eligibility labels.
+
+To use this new member in Example 2 later, first extend that example's namespace placement, install its member observer RBAC, and regenerate the pipeline connections Secret with an additional `--member "$NEW_MEMBER=$STATE/new-member"`. Only then mark it eligible through the Azure Fleet member API. Simply labeling a newly joined member is insufficient: the pipeline must have namespace-scoped access to read its result. See [pipeline setup](../02-pipelines-remote-training/SETUP.md).

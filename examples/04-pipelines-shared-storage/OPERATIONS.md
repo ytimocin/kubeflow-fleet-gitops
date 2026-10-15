@@ -1,4 +1,6 @@
-# Reset and troubleshoot
+# Repeat, troubleshoot, and clean up Demo 4
+
+[Back to the demo](README.md). Use the variables from [setup](SETUP.md).
 
 ## Run the example again
 
@@ -60,8 +62,22 @@ Use a new run with a threshold below the expected nonzero error:
 
 Expected: prepare, validate, and remote training succeed; evaluation writes metrics and fails; publish is skipped. There must be no `published/result.json` for that run. The command returns an error because this is intentionally a failed run.
 
-## Retire the demo
+## Finish a session
 
-After terminating runs and removing their remote work, remove the dedicated Fleet connections Secret and service accounts, demo RBAC, namespace CRP/source namespace, identity role assignments/federated credentials, and managed identities. Inspect any remaining member namespace contents before deleting them. Delete the dedicated storage account and ACR only when their artifacts/images are no longer needed. Do not delete the shared resource group, Fleet, or clusters to clean up this example.
+Clean up each run's remote work as above. This keeps Blob files and pipeline history for inspection; it also keeps the storage account, registry, identities, and clusters for another run.
 
-Storage/registry charges continue while those resources exist; GPU/CPU node charges continue while nodes are running. Reducing capacity is a separate operation from cleaning up pipeline objects.
+To revoke the temporary Fleet API access after all runs have stopped:
+
+```bash
+kubectl --kubeconfig "$STATE/east" -n "$PROFILE" delete secret fleet-blob-access --ignore-not-found
+kubectl --kubeconfig "$STATE/hub" -n blob-training delete serviceaccount blob-submitter --ignore-not-found
+kubectl --kubeconfig "$STATE/west" -n blob-training delete serviceaccount blob-observer --ignore-not-found
+```
+
+Before using the demo again, rerun [setup step 3](SETUP.md#3-enable-identity-and-configure-access) to restore these accounts, then refresh access.
+
+## Delete the dedicated environment
+
+When finished with **all** demos, follow [shared infrastructure cleanup](../../shared/SETUP.md#cleanup-shared-infrastructure). This deletes the dedicated resource group, including the shared clusters and this demo's storage, registry, and identities. Download any files you want to keep first.
+
+If keeping the other demos, use the per-run cleanup above instead. Storage/registry charges continue while those resources exist; GPU/CPU nodes continue to incur charges while running.

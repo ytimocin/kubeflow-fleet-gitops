@@ -1,23 +1,42 @@
-# Kubeflow training with Azure Fleet
+# Kubeflow GPU demos with Azure Fleet
 
-Run GPU training across AKS members, integrate it with Kubeflow Pipelines, and add a new GPU member to the Fleet.
+Run training across AKS clusters using Azure Kubernetes Fleet Manager. These four examples show placement, pipeline integration, adding GPU capacity, and sharing data between regions.
 
-- **[Demo 1: Regional placement of Kubeflow GPU training jobs](examples/01-regional-gpu-training/README.md)** — Run a training job on East, then run it again in West.
-- **[Demo 2: Kubeflow Pipelines → remote GPU training](examples/02-pipelines-remote-training/README.md)** — Start a pipeline on East, let Fleet choose an eligible GPU cluster, and continue when training finishes.
-- **[Demo 3: Add a GPU member to the Fleet](examples/03-add-gpu-member/README.md)** — Join a GPU-enabled AKS cluster and run training on it.
-- **[Demo 4: Multi-step pipeline with shared Azure Blob Storage](examples/04-pipelines-shared-storage/README.md)** — Prepare data in East, train in West, then evaluate and publish results in East.
+## Choose a demo
 
-**Choose any example; they do not require running in order.** Complete the [shared infrastructure setup](shared/SETUP.md) once, or [connect to an existing environment](shared/CONNECT.md).
+| Demo | What you will do | Extra setup |
+| --- | --- | --- |
+| [1. Run training in two regions](examples/01-regional-gpu-training/README.md) | Run a PyTorch job in East, then run it again in West | None |
+| [2. Run remote training from a pipeline](examples/02-pipelines-remote-training/README.md) | Start a pipeline in East, train on a Fleet-selected member, then continue the pipeline | Kubeflow on East |
+| [3. Add a GPU member](examples/03-add-gpu-member/README.md) | Join another AKS cluster and run training on its GPU | One additional GPU cluster |
+| [4. Share data through Blob Storage](examples/04-pipelines-shared-storage/README.md) | Prepare data in East, train in West, then evaluate and publish in East | Kubeflow on East, Blob Storage, and ACR |
 
-| Choose | What else is needed? |
-| --- | --- |
-| Example 1 | Nothing beyond shared setup |
-| Example 2 | [Kubeflow Pipelines on East](shared/KUBEFLOW.md), then its own [setup](examples/02-pipelines-remote-training/SETUP.md) |
-| Example 3 | [One additional AKS cluster with a working GPU](examples/03-add-gpu-member/SETUP.md) |
-| Example 4 | Kubeflow Pipelines on East, Blob Storage, Workload Identity, and its own [setup](examples/04-pipelines-shared-storage/SETUP.md) |
+Run any demo independently. Each uses its own training namespace; all can reuse the same Fleet.
 
-All four include commands and use separate training namespaces. They can share the same infrastructure.
+## Start here
 
-Fleet places Kubernetes resources. Training Operator runs the job on the selected member. Changing regions starts a **new execution**; it does not transfer a running process, data, or checkpoints. Example 4 explicitly shares datasets and saves model/checkpoint files through Blob Storage; checkpoint resumption is not implemented.
+```bash
+git clone https://github.com/ytimocin/kubeflow-fleet-gitops.git
+cd kubeflow-fleet-gitops
+```
 
-Despite the repository name, this demo uses explicit `az` and `kubectl` commands. Argo CD is not required.
+1. **New environment:** follow [shared setup](shared/SETUP.md) to create the Fleet and GPU members.
+2. **Existing environment:** follow [connect](shared/CONNECT.md) to load credentials and check prerequisites.
+3. Open your chosen demo above. For demos 2 and 4, first [install Kubeflow on East](shared/KUBEFLOW.md).
+
+Use **Bash or zsh**, run commands from this repository's root, and keep the same terminal open. Replace values in `<angle brackets>` with your own. If a command fails, fix it before continuing. A new terminal needs the [connection setup](shared/CONNECT.md) again.
+
+## How it works
+
+- The **hub** stores job definitions and placement rules.
+- **Fleet** copies the selected resources to member clusters.
+- **Training Operator** runs each PyTorchJob on the member's GPU.
+- **Kubeflow Pipelines**, used in demos 2 and 4, coordinates tasks and waits for the remote job's result.
+
+A **ClusterResourcePlacement (CRP)** places cluster-scoped resources; these demos use it to create namespaces. A **ResourcePlacement (RP)** places selected resources within a namespace, such as a training job.
+
+Changing a job's target starts a new execution. It does not move a running process or resume a checkpoint. Demo 4 shares data and saves checkpoints through Blob Storage, but does not implement checkpoint resumption. These examples use `az` and `kubectl`; Argo CD is not required.
+
+## When finished
+
+Each demo links to its cleanup commands. To delete the entire dedicated environment, use [shared cleanup](shared/SETUP.md#cleanup-shared-infrastructure). Azure resources incur charges while they exist or run; deleting a training job does not delete its GPU nodes.

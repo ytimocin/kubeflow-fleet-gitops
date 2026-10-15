@@ -1,12 +1,10 @@
 # Kubeflow dashboard and Pipelines on East
 
-This installation is required for Example 2 and optional for Example 1. Both use the [shared infrastructure](SETUP.md). The full Kubeflow installation below adds the familiar dashboard and Pipelines UI to **East**, for discussing the existing workflow. It takes longer and needs extra CPU capacity. Continue with Example 2 to connect a pipeline to Fleet.
+Required for **demos 2 and 4**. Demos 1 and 3 only need Training Operator.
 
-Run these commands from the repository root after [connecting](CONNECT.md) to define the environment and `east()`.
+Follow [shared setup](SETUP.md) first, then [connect](CONNECT.md). Run from the repository root in the same terminal. This installs Kubeflow **v1.11.0** on East with two extra CPU nodes.
 
-## Check your current state
-
-> See which prerequisites already exist before installing anything.
+## 1. Check what is installed
 
 ```bash
 az aks nodepool list -g "$RG" --cluster-name "$EAST" \
@@ -16,26 +14,24 @@ east -n kubeflow get deployments
 east get namespace kubeflow-user-example-com --ignore-not-found
 ```
 
-If only `training-operator` is present, continue with installation: Pipelines is still missing. If `ml-pipeline` and `centraldashboard` already exist, check their rollout status and the user namespace before skipping to **Open the dashboard**. For a partial installation, resume the remaining steps below.
+If only `training-operator` is present, continue with installation: Pipelines is still missing. If `ml-pipeline` and `centraldashboard` already exist, check their rollout status and the user namespace before skipping to [Open the dashboard](#3-open-the-dashboard). For a partial installation, resume the remaining steps below.
 
-## Install Kubeflow v1.11.0
+## 2. Install Kubeflow
 
-> Add Kubeflow’s web interface and supporting services to East.
-
-If the `kubeflow` pool already exists, skip this creation command and confirm its two nodes are Ready before continuing. Resolve an incomplete pool operation instead of trying to create the same pool again. If the pool is absent, add regular CPU capacity, leaving GPU nodes for training:
+Add CPU capacity. If the `kubeflow` pool already exists, skip creation and confirm its two nodes are Ready:
 
 ```bash
 az aks nodepool add -g "$RG" --cluster-name "$EAST" --name kubeflow \
   --mode User --node-count 2 --node-vm-size Standard_D8as_v5
 ```
 
-Prepare the local tools. If `.cache/kubeflow-manifests` already exists from this guide, reuse it after confirming `git -C .cache/kubeflow-manifests describe --tags --exact-match` reports `v1.11.0`; skip the clone command.
+Prepare local tools. If the clone already exists, check `git -C .cache/kubeflow-manifests describe --tags --exact-match` reports `v1.11.0` and skip cloning.
 
 ```bash
 mkdir -p .cache/bin
 git clone --depth 1 --branch v1.11.0 \
   https://github.com/kubeflow/manifests.git .cache/kubeflow-manifests
-python3 -m venv .venv
+python3.11 -m venv .venv
 .venv/bin/pip install PyYAML==6.0.3
 ```
 
@@ -93,20 +89,21 @@ east get pods -A
 east get pvc -A
 ```
 
-Resolve failed workloads and unbound PVCs before presenting. The unchanged upstream example uses email `user@example.com` and password `12341234`, as documented in the release README. If you customized Dex, use your configured credentials instead. Keep the demo private and access it through the localhost tunnel below.
+Continue only when these deployments are ready and their PVCs are bound. The unchanged upstream example uses email `user@example.com` and password `12341234`, as documented in the release README. If you customized Dex, use your configured credentials instead. Keep the demo private and access it through the localhost tunnel below.
 
-## Open the dashboard
+## 3. Open the dashboard
 
-> Open East’s Kubeflow interface in your browser to explore its local environment.
-
-In a separate terminal, with the same connection setup:
+In a **second terminal**, open the repository root. Use your actual `STATE` path if it differs from `.state`:
 
 ```bash
-east -n istio-system port-forward svc/istio-ingressgateway 8080:80 --address 127.0.0.1
+kubectl --kubeconfig .state/east -n istio-system \
+  port-forward svc/istio-ingressgateway 8080:80 --address 127.0.0.1
 ```
 
-Open **http://localhost:8080/oauth2/start**, sign in using the installed demo account, and select the user's profile. You can show the Kubeflow home page and Pipelines UI. Ctrl+C closes the tunnel.
+Open **http://localhost:8080/oauth2/start**, sign in, and select `kubeflow-user-example-com`. Click **Pipelines** for pipeline definitions and runs. Keep the terminal running; Ctrl+C closes the tunnel.
 
-The dedicated `gpu-training` namespace in Example 1 is not a Kubeflow user Profile. Do not expect its PyTorchJobs to appear in every dashboard view. The dashboard also cannot show West's job status automatically. Show the terminal's GPU logs and member PyTorchJob status beside the dashboard; integrating remote results into a pipeline is the [second example](../examples/02-pipelines-remote-training/README.md).
+This dashboard shows East. A remote West job appears through the pipeline component's logs, not as a local East job. Demo 1's `gpu-training` namespace is also separate from the user profile.
+
+Continue with [Demo 2](../examples/02-pipelines-remote-training/README.md) or [Demo 4](../examples/04-pipelines-shared-storage/README.md).
 
 Source: [Kubeflow manifests v1.11.0](https://github.com/kubeflow/manifests/tree/v1.11.0).
