@@ -1,6 +1,6 @@
-# Rehearsal evidence
+# Validation evidence
 
-Validated on September 28, 2026 (Pacific time), using the existing rehearsal Fleet and AKS members. This validation did not provision a fresh resource group or reinstall all of Kubeflow.
+Validated on September 28, 2026 (Pacific time), using the existing test Fleet and AKS members. This validation did not provision a fresh resource group or reinstall all of Kubeflow.
 
 | Same compiled pipeline | Fleet-selected member | Training device | Outcome |
 | --- | --- | --- | --- |
