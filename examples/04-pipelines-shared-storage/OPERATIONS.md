@@ -1,10 +1,10 @@
 # Reset and troubleshoot
 
-## Repeat a take
+## Run the example again
 
 Every new pipeline run gets a unique job name and Blob prefix. Start a **new run**, rather than retrying a completed run or clearing a shared folder. Cached execution is disabled. Writes within one run are immutable: a retry may reuse identical content but cannot overwrite a different artifact.
 
-Before a later recording session, refresh the short-lived Kubernetes API credentials:
+Before a later session, refresh the short-lived Kubernetes API credentials:
 
 ```bash
 bash "$EXAMPLE/scripts/refresh-access.sh"

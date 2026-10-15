@@ -10,7 +10,7 @@ The focused tests cover artifact tampering, cross-run references, model-quality 
 
 Live validation is recorded below after running against Azure. Do not treat compilation or mocks as proof of cross-region execution.
 
-## Azure rehearsal — October 15, 2026
+## Azure validation — October 15, 2026
 
 The full pipeline completed successfully at **17:45:36 UTC**. Kubeflow Pipelines ran on `demo-east`; Fleet placed the PyTorchJob on `demo-west` in West US 2.
 
@@ -51,7 +51,7 @@ The intentional failure was archived in Kubeflow after inspection. Its remote wo
 
 ## Local checks
 
-Eight focused unit tests passed, including corrupted/missing artifacts, cross-run references, failed evaluation, remote training failure, and graph dependencies. Pipeline compilation, Python compilation, shell syntax, local documentation links, and `git diff --check` passed. The exported reference YAML contains placeholder registry addresses, not rehearsal credentials or subscription details.
+Eight focused unit tests passed, including corrupted/missing artifacts, cross-run references, failed evaluation, remote training failure, and graph dependencies. Pipeline compilation, Python compilation, shell syntax, local documentation links, and `git diff --check` passed. The exported reference YAML contains placeholder registry addresses, not environment credentials or subscription details.
 
 ## Limits of this validation
 

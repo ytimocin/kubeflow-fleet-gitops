@@ -20,7 +20,7 @@ python3.11 -m venv .venv
 .venv/bin/pip install -r "$EXAMPLE/requirements.txt" -r "$EXAMPLE/requirements-runtime.txt"
 ```
 
-Confirm West has an allocatable GPU and East's pipeline services are available. Restore stopped node pools before recording; provisioning and image downloads happen off camera.
+Confirm West has an allocatable GPU and East's pipeline services are available. Restore stopped node pools before starting the pipeline.
 
 ```bash
 kubectl --kubeconfig "$STATE/east" -n kubeflow rollout status deployment/ml-pipeline --timeout=600s

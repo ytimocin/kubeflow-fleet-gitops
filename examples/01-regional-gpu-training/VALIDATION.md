@@ -37,4 +37,4 @@ Observed limitation: while East's training pod was Pending, the top-level RP rep
 
 East T4 Spot allocation attempts failed. An A100 Spot pool allocated successfully; West's T4 pool used an ephemeral OS disk, while the setup guide explicitly selects managed OS disks to reduce allocation constraints. Regular GPU quota was unavailable. Spot capacity can be evicted and this record does not guarantee availability at the next run.
 
-This revision reused the prepared Fleet and AKS members; it did not recreate a fresh resource group. The optional full Kubeflow install was previously rehearsed on East, while the standalone Training Operator install was applied to West. The remote Pipelines/Argo integration remains upcoming.
+This revision reused the prepared Fleet and AKS members; it did not recreate a fresh resource group. The optional full Kubeflow install was previously tested on East, while the standalone Training Operator install was applied to West. The remote Pipelines/Argo integration remains upcoming.
