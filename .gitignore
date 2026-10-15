@@ -5,3 +5,13 @@
 *.kubeconfig
 __pycache__/
 .DS_Store
+
+# Keep recording assets and narration outside the example repository.
+recordings/
+**/RECORDING.md
+**/recording-cues.*
+**/narration-script.*
+*.mp4
+*.mov
+*.webm
+*.srt
