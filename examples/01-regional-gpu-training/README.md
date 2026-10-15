@@ -1,24 +1,18 @@
-# Regional GPU training with Fleet
+# Demo 1: Run GPU training in two regions
 
 Run one Kubeflow PyTorchJob on East’s GPU, then change its Fleet placement to run it on West’s GPU.
 
 ## Before you start
 
-- **Starting from scratch?** If you haven't created the Fleet and GPU members, please follow the [shared infrastructure setup](../../shared/SETUP.md) first.
-- **Already set up, or coming from Example 2?** Reuse your existing infrastructure. Follow [Connect and check the GPUs](../../shared/CONNECT.md) with your resource group and Fleet.
-- **Repeating this example?** [Reset its previous training job](OPERATIONS.md#reset) before running it again.
+Complete [shared setup](../../shared/SETUP.md), or [connect to your existing environment](../../shared/CONNECT.md). Kubeflow Pipelines is not required. If repeating this demo, [reset the previous job](OPERATIONS.md#reset) first.
 
-Example 2 and Kubeflow Pipelines are not required. Once connected, continue below.
-
-From the repository root:
+Use the same terminal, from the repository root:
 
 ```bash
 export DEMO="$PWD/examples/01-regional-gpu-training"
 ```
 
 ## 1. Prepare the namespace
-
-> Create a separate workspace for this demo on both clusters.
 
 ```bash
 hub apply -f "$DEMO/manifests/namespace.yaml"
@@ -27,8 +21,6 @@ hub wait crp/gpu-training-namespace \
 ```
 
 ## 2. Run in East
-
-> Tell Fleet to send the training job to East, where it runs once the GPU and software are ready.
 
 ```bash
 hub create -f "$SHARED/manifests/pytorchjob.yaml"
@@ -47,8 +39,6 @@ Expect the GPU name, decreasing loss, and `TRAINING_SUCCEEDED device=cuda`. West
 
 ## 3. Switch to West
 
-> After East finishes, tell Fleet to run the same job from the beginning in West and remove its old copy from East.
-
 After East succeeds, change only the placement:
 
 ```bash
@@ -66,7 +56,7 @@ east -n gpu-training wait --for=delete pod/regional-gpu-training-master-0 --time
 
 Expect successful GPU training on West and removal of the old job from East. **West starts a new execution; no running process, data, or checkpoint is transferred.** This demo selects clusters explicitly; automatic GPU-capacity selection and pipeline integration are separate work.
 
-## Useful links
+## Next steps
 
 - [Open the Kubeflow dashboard](../../shared/KUBEFLOW.md) — shows East’s local Kubeflow environment.
 - [Reset, troubleshoot, or clean up](OPERATIONS.md#reset).

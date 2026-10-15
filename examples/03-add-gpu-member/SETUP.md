@@ -1,26 +1,17 @@
 # Prepare the new GPU cluster
 
-Run from the repository root in Bash or zsh. Reuse an existing hub-enabled Fleet, its access permissions, and hub PyTorchJob CRD from [shared setup](../../shared/SETUP.md). This guide creates only one additional AKS cluster. It joins the Fleet in the [example walkthrough](README.md).
+Reuse a hub-enabled Fleet with the PyTorchJob CRD from [shared setup](../../shared/SETUP.md). This guide creates one additional GPU cluster; the [walkthrough](README.md) joins it to Fleet.
 
 ## 1. Set the environment
 
-Use your existing values for `SUBSCRIPTION`, `RG`, `FLEET`, and `STATE`. For a new terminal, set them explicitly first:
+First [connect to your existing Fleet](../../shared/CONNECT.md). In that same terminal, from the repository root:
 
 ```bash
-export SUBSCRIPTION='<your-subscription-id>'
-export RG='<your-existing-demo-resource-group>'
-export FLEET='<your-existing-fleet-name>'
-export STATE="$PWD/.state"
-export SHARED="$PWD/shared"
 export EXPANSION="$PWD/examples/03-add-gpu-member"
 export NEW_MEMBER=demo-gpu
 export NEW_REGION=westus2
 export NEW_GPU_SKU=Standard_NC24ads_A100_v4
-mkdir -p "$STATE"
-chmod 700 "$STATE"
 ```
-
-If your terminal already uses a session-specific `STATE`, keep that path instead of replacing it. All Azure commands below explicitly select the subscription.
 
 Check quota and SKU restrictions; neither guarantees immediate allocation:
 
@@ -120,6 +111,6 @@ az fleet member list --subscription "$SUBSCRIPTION" -g "$RG" \
 hub get memberclusters
 ```
 
-Before the first join, the new member should be absent from both lists. If it is already joined, use the [repeat-join procedure](OPERATIONS.md#repeat-member-registration); do not describe an update of an existing membership as a new join.
+Before the first join, the new member should be absent from both lists. If it is already joined, skip joining and continue at [prepare a namespace](README.md#3-prepare-a-namespace-on-the-new-member), or use [repeat registration](OPERATIONS.md#repeat-member-registration).
 
 You can inspect the Fleet's **Members** page and the new AKS cluster's **Node pools** page in Azure Portal. Continue with the [example walkthrough](README.md).

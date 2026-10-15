@@ -12,8 +12,6 @@ export DEMO="$PWD/examples/01-regional-gpu-training"
 
 ## Reset
 
-> Remove this demo’s training jobs so you can run it again while keeping the clusters and GPUs.
-
 These commands delete only this example's job and placement, preserving the namespace and infrastructure. Wait for cleanup before recreating the source job.
 
 ```bash
@@ -29,13 +27,9 @@ Then repeat [Run in East](README.md#2-run-in-east). `kubectl wait --for=delete` 
 
 ## Troubleshooting
 
-> Check where the job is stuck and what is preventing it from running.
-
 ```bash
 hub -n gpu-training describe resourceplacement gpu-training
 hub -n gpu-training get resourceplacement gpu-training -o yaml
-hub -n fleet-member-demo-east get work gpu-training.gpu-training-work \
-  -o jsonpath='{.status.manifestConditions[*].conditions}{"\n"}'
 east -n gpu-training get pytorchjobs,pods
 east -n gpu-training describe pod regional-gpu-training-master-0
 east -n gpu-training get events --sort-by=.lastTimestamp
@@ -48,8 +42,6 @@ PyTorchJob availability is not tracked by Fleet. The Work reports `NotTrackable`
 
 ## Cleanup
 
-> Remove the demo when finished, or delete its entire dedicated resource group to remove the infrastructure too.
-
 To remove only the example, reset it first, then run:
 
 ```bash
@@ -57,4 +49,4 @@ hub delete crp gpu-training-namespace --wait=true
 hub delete namespace gpu-training
 ```
 
-To remove the Fleet and clusters used by both examples, follow [shared infrastructure cleanup](../../shared/SETUP.md#cleanup-shared-infrastructure).
+To remove the Fleet and clusters used by all demos, follow [shared infrastructure cleanup](../../shared/SETUP.md#cleanup-shared-infrastructure).
