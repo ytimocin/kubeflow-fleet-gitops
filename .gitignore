@@ -6,7 +6,7 @@
 __pycache__/
 .DS_Store
 
-# Keep recording assets and production notes outside the example repository.
+# Keep recording assets and narration outside the example repository.
 recordings/
 **/RECORDING.md
 **/recording-cues.*
