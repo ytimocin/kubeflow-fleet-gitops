@@ -1,4 +1,4 @@
-# Rehearsal record
+# Validation results
 
 **Passed on 2026-09-28:** Fleet placed the GPU PyTorchJob on East, then a placement change created a distinct successful execution on West and removed the old job and pod from East.
 
@@ -25,7 +25,7 @@ West: GPU=Tesla T4 CUDA=12.4
 
 Also verified:
 
-- The reset commands removed the demo RP, source job, member jobs, and pods; both GPU nodes remained ready for another rehearsal.
+- The reset commands removed the demo RP, source job, member jobs, and pods; both GPU nodes remained ready for another run.
 - Both managed Fleet members joined; the namespace-only CRP created the namespace on both.
 - Training Operator v1.9.2 ran on both members. PyTorchJob and ResourcePlacement passed hub server-side validation.
 - East ran AKS 1.35.8; West ran AKS 1.35.7. NVIDIA device plugin v0.20.1 exposed one GPU per member.
@@ -35,6 +35,6 @@ Also verified:
 
 Observed limitation: while East's training pod was Pending, the top-level RP reported `ResourcePlacementAvailable=True / ResourceAvailable`. Its per-cluster condition reported `NotAllWorkAreAvailabilityTrackable`; the Work's PyTorchJob condition reported `Available=True / NotTrackable`. Training success was therefore checked directly on each member.
 
-East T4 Spot allocation attempts failed. An A100 Spot pool allocated successfully; West's T4 pool used an ephemeral OS disk, while the setup guide explicitly selects managed OS disks to reduce allocation constraints. Regular GPU quota was unavailable. Spot capacity can be evicted and this record does not guarantee availability at the next rehearsal.
+East T4 Spot allocation attempts failed. An A100 Spot pool allocated successfully; West's T4 pool used an ephemeral OS disk, while the setup guide explicitly selects managed OS disks to reduce allocation constraints. Regular GPU quota was unavailable. Spot capacity can be evicted and this record does not guarantee availability at the next run.
 
 This revision reused the prepared Fleet and AKS members; it did not recreate a fresh resource group. The optional full Kubeflow install was previously rehearsed on East, while the standalone Training Operator install was applied to West. The remote Pipelines/Argo integration remains upcoming.

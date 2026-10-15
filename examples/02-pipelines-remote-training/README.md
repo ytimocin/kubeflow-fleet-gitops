@@ -98,4 +98,4 @@ It does not automatically convert an existing pipeline, provide GPU capacity res
 
 **Stopping the pipeline does not cancel its remote job.** See [cleanup and troubleshooting](SETUP.md#cleanup-and-troubleshooting). The demo's credentials are short-lived; refresh them before a later run.
 
-[Rehearsal evidence and local tests](VALIDATION.md).
+[Validation evidence and local tests](VALIDATION.md).
