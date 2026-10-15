@@ -1,0 +1,14 @@
+apiVersion: placement.kubernetes-fleet.io/v1
+kind: ResourcePlacement
+metadata:
+  name: new-member-training
+  namespace: member-expansion
+spec:
+  resourceSelectors:
+    - group: kubeflow.org
+      version: v1
+      kind: PyTorchJob
+      name: new-member-training
+  policy:
+    placementType: PickFixed
+    clusterNames: [demo-gpu]

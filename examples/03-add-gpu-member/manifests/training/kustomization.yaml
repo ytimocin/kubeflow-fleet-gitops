@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../../../shared/manifests
+namespace: member-expansion
+patches:
+  - target:
+      group: kubeflow.org
+      version: v1
+      kind: PyTorchJob
+      name: regional-gpu-training
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: new-member-training

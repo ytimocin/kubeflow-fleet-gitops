@@ -30,3 +30,23 @@ python3 -m unittest discover -s examples/02-pipelines-remote-training/tests -v
 ```
 
 This proves label-based placement plus pipeline result integration. It does not prove automatic free-GPU discovery, capacity reservation, production authentication, cancellation propagation, shared datasets/artifacts, or distributed training.
+
+## Validation on the user's Fleet
+
+A separate run on September 28, 2026 (Pacific time) used resource group `ytimocin-fleet-gpu-demo`, Fleet `fleet-gpu-demo`, and its `demo-east` / `demo-west` members.
+
+Initial checks found both members joined, one allocatable GPU on each, Training Operator on both, and the PyTorchJob CRD on the hub. East already had the two-node `kubeflow` CPU pool, but no Pipelines deployment or user Profile namespace. The existing pool was reused.
+
+Following `shared/KUBEFLOW.md`, the pinned Kubeflow v1.11.0 installation succeeded on its third server-side apply. Earlier passes encountered CRDs and webhook endpoints that were not ready yet. All Kubeflow deployments subsequently became available and all three storage claims were Bound.
+
+Example 2's documented label, namespace, RBAC, temporary connection, compilation, and submission steps succeeded:
+
+- Pipeline run: `bc5e9f97-7963-4649-b881-4d7e581c5f75`.
+- Job: `gpu-eb1c27647ab7ec94baa60771` in `pipeline-training`.
+- Fleet selected `demo-west`; East had no training job in this namespace.
+- West's PyTorchJob succeeded on `Tesla T4`, CUDA 12.4, and printed `TRAINING_SUCCEEDED device=cuda`.
+- The following task printed `PIPELINE_CONTINUED` with West's successful result; the workflow and pipeline succeeded.
+
+The localhost tunnel used port 8081 to avoid the earlier rehearsal's port 8080. The optional eligibility switch to East was not repeated on this Fleet. Completed run resources were retained for inspection; temporary connections need refreshing before later runs once their tokens expire.
+
+The guide now checks existing pools and deployments before installation, explains how to resume a partial setup, and waits for authentication, workflow, and Profile readiness. No pipeline code changes were needed for this run.
