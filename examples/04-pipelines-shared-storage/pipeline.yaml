@@ -1,0 +1,427 @@
+# PIPELINE DEFINITION
+# Name: fleet-shared-blob-training
+# Inputs:
+#    container: str [Default: 'fleet-demo4']
+#    mse_threshold: float [Default: 0.02]
+#    storage_account: str
+#    target_member: str [Default: 'demo-west']
+components:
+  comp-evaluate-model:
+    executorLabel: exec-evaluate-model
+    inputDefinitions:
+      parameters:
+        account:
+          parameterType: STRING
+        container:
+          parameterType: STRING
+        run_id:
+          parameterType: STRING
+        threshold:
+          parameterType: NUMBER_DOUBLE
+        training:
+          parameterType: STRING
+        validated:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        result:
+          parameterType: STRING
+  comp-prepare-data:
+    executorLabel: exec-prepare-data
+    inputDefinitions:
+      parameters:
+        account:
+          parameterType: STRING
+        container:
+          parameterType: STRING
+        run_id:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        result:
+          parameterType: STRING
+  comp-publish-results:
+    executorLabel: exec-publish-results
+    inputDefinitions:
+      parameters:
+        account:
+          parameterType: STRING
+        container:
+          parameterType: STRING
+        metrics:
+          parameterType: STRING
+        run_id:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        result:
+          parameterType: STRING
+  comp-train-remotely:
+    executorLabel: exec-train-remotely
+    inputDefinitions:
+      parameters:
+        account:
+          parameterType: STRING
+        container:
+          parameterType: STRING
+        run_id:
+          parameterType: STRING
+        target:
+          parameterType: STRING
+        validated:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        result:
+          parameterType: STRING
+  comp-validate-data:
+    executorLabel: exec-validate-data
+    inputDefinitions:
+      parameters:
+        account:
+          parameterType: STRING
+        container:
+          parameterType: STRING
+        dataset:
+          parameterType: STRING
+        run_id:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        result:
+          parameterType: STRING
+deploymentSpec:
+  executors:
+    exec-evaluate-model:
+      container:
+        args:
+        - --account
+        - '{{$.inputs.parameters[''account'']}}'
+        - --container
+        - '{{$.inputs.parameters[''container'']}}'
+        - --run-id
+        - '{{$.inputs.parameters[''run_id'']}}'
+        - --input
+        - '{{$.inputs.parameters[''validated'']}}'
+        - --training
+        - '{{$.inputs.parameters[''training'']}}'
+        - --threshold
+        - '{{$.inputs.parameters[''threshold'']}}'
+        - --output
+        - '{{$.outputs.parameters[''result''].output_file}}'
+        command:
+        - python
+        - /app/tasks.py
+        - evaluate
+        image: replace-with-your-registry.azurecr.io/demo4/cpu:demo4
+        resources:
+          cpuLimit: 1.0
+          cpuRequest: 0.1
+          memoryLimit: 0.536870912
+          memoryRequest: 0.134217728
+          resourceCpuLimit: '1'
+          resourceCpuRequest: 100m
+          resourceMemoryLimit: 512Mi
+          resourceMemoryRequest: 128Mi
+    exec-prepare-data:
+      container:
+        args:
+        - --account
+        - '{{$.inputs.parameters[''account'']}}'
+        - --container
+        - '{{$.inputs.parameters[''container'']}}'
+        - --run-id
+        - '{{$.inputs.parameters[''run_id'']}}'
+        - --output
+        - '{{$.outputs.parameters[''result''].output_file}}'
+        command:
+        - python
+        - /app/tasks.py
+        - prepare
+        image: replace-with-your-registry.azurecr.io/demo4/cpu:demo4
+        resources:
+          cpuLimit: 1.0
+          cpuRequest: 0.1
+          memoryLimit: 0.536870912
+          memoryRequest: 0.134217728
+          resourceCpuLimit: '1'
+          resourceCpuRequest: 100m
+          resourceMemoryLimit: 512Mi
+          resourceMemoryRequest: 128Mi
+    exec-publish-results:
+      container:
+        args:
+        - --account
+        - '{{$.inputs.parameters[''account'']}}'
+        - --container
+        - '{{$.inputs.parameters[''container'']}}'
+        - --run-id
+        - '{{$.inputs.parameters[''run_id'']}}'
+        - --input
+        - '{{$.inputs.parameters[''metrics'']}}'
+        - --output
+        - '{{$.outputs.parameters[''result''].output_file}}'
+        command:
+        - python
+        - /app/tasks.py
+        - publish
+        image: replace-with-your-registry.azurecr.io/demo4/cpu:demo4
+        resources:
+          cpuLimit: 1.0
+          cpuRequest: 0.1
+          memoryLimit: 0.536870912
+          memoryRequest: 0.134217728
+          resourceCpuLimit: '1'
+          resourceCpuRequest: 100m
+          resourceMemoryLimit: 512Mi
+          resourceMemoryRequest: 128Mi
+    exec-train-remotely:
+      container:
+        args:
+        - --account
+        - '{{$.inputs.parameters[''account'']}}'
+        - --container
+        - '{{$.inputs.parameters[''container'']}}'
+        - --run-id
+        - '{{$.inputs.parameters[''run_id'']}}'
+        - --validated
+        - '{{$.inputs.parameters[''validated'']}}'
+        - --target
+        - '{{$.inputs.parameters[''target'']}}'
+        - --image
+        - replace-with-your-registry.azurecr.io/demo4/gpu:demo4
+        - --output
+        - '{{$.outputs.parameters[''result''].output_file}}'
+        command:
+        - python
+        - /app/remote.py
+        image: replace-with-your-registry.azurecr.io/demo4/cpu:demo4
+        resources:
+          cpuLimit: 1.0
+          cpuRequest: 0.1
+          memoryLimit: 0.536870912
+          memoryRequest: 0.134217728
+          resourceCpuLimit: '1'
+          resourceCpuRequest: 100m
+          resourceMemoryLimit: 512Mi
+          resourceMemoryRequest: 128Mi
+    exec-validate-data:
+      container:
+        args:
+        - --account
+        - '{{$.inputs.parameters[''account'']}}'
+        - --container
+        - '{{$.inputs.parameters[''container'']}}'
+        - --run-id
+        - '{{$.inputs.parameters[''run_id'']}}'
+        - --input
+        - '{{$.inputs.parameters[''dataset'']}}'
+        - --output
+        - '{{$.outputs.parameters[''result''].output_file}}'
+        command:
+        - python
+        - /app/tasks.py
+        - validate
+        image: replace-with-your-registry.azurecr.io/demo4/cpu:demo4
+        resources:
+          cpuLimit: 1.0
+          cpuRequest: 0.1
+          memoryLimit: 0.536870912
+          memoryRequest: 0.134217728
+          resourceCpuLimit: '1'
+          resourceCpuRequest: 100m
+          resourceMemoryLimit: 512Mi
+          resourceMemoryRequest: 128Mi
+pipelineInfo:
+  name: fleet-shared-blob-training
+root:
+  dag:
+    tasks:
+      evaluate-model:
+        cachingOptions: {}
+        componentRef:
+          name: comp-evaluate-model
+        dependentTasks:
+        - train-remotely
+        - validate-data
+        inputs:
+          parameters:
+            account:
+              componentInputParameter: storage_account
+            container:
+              componentInputParameter: container
+            run_id:
+              runtimeValue:
+                constant: '{{$.pipeline_job_uuid}}'
+            threshold:
+              componentInputParameter: mse_threshold
+            training:
+              taskOutputParameter:
+                outputParameterKey: result
+                producerTask: train-remotely
+            validated:
+              taskOutputParameter:
+                outputParameterKey: result
+                producerTask: validate-data
+        retryPolicy:
+          backoffDuration: 0s
+          backoffFactor: 2.0
+          backoffMaxDuration: 3600s
+        taskInfo:
+          name: evaluate-model
+      prepare-data:
+        cachingOptions: {}
+        componentRef:
+          name: comp-prepare-data
+        inputs:
+          parameters:
+            account:
+              componentInputParameter: storage_account
+            container:
+              componentInputParameter: container
+            run_id:
+              runtimeValue:
+                constant: '{{$.pipeline_job_uuid}}'
+        retryPolicy:
+          backoffDuration: 0s
+          backoffFactor: 2.0
+          backoffMaxDuration: 3600s
+        taskInfo:
+          name: prepare-data
+      publish-results:
+        cachingOptions: {}
+        componentRef:
+          name: comp-publish-results
+        dependentTasks:
+        - evaluate-model
+        inputs:
+          parameters:
+            account:
+              componentInputParameter: storage_account
+            container:
+              componentInputParameter: container
+            metrics:
+              taskOutputParameter:
+                outputParameterKey: result
+                producerTask: evaluate-model
+            run_id:
+              runtimeValue:
+                constant: '{{$.pipeline_job_uuid}}'
+        retryPolicy:
+          backoffDuration: 0s
+          backoffFactor: 2.0
+          backoffMaxDuration: 3600s
+        taskInfo:
+          name: publish-results
+      train-remotely:
+        cachingOptions: {}
+        componentRef:
+          name: comp-train-remotely
+        dependentTasks:
+        - validate-data
+        inputs:
+          parameters:
+            account:
+              componentInputParameter: storage_account
+            container:
+              componentInputParameter: container
+            run_id:
+              runtimeValue:
+                constant: '{{$.pipeline_job_uuid}}'
+            target:
+              componentInputParameter: target_member
+            validated:
+              taskOutputParameter:
+                outputParameterKey: result
+                producerTask: validate-data
+        retryPolicy:
+          backoffDuration: 0s
+          backoffFactor: 2.0
+          backoffMaxDuration: 3600s
+        taskInfo:
+          name: train-remotely
+      validate-data:
+        cachingOptions: {}
+        componentRef:
+          name: comp-validate-data
+        dependentTasks:
+        - prepare-data
+        inputs:
+          parameters:
+            account:
+              componentInputParameter: storage_account
+            container:
+              componentInputParameter: container
+            dataset:
+              taskOutputParameter:
+                outputParameterKey: result
+                producerTask: prepare-data
+            run_id:
+              runtimeValue:
+                constant: '{{$.pipeline_job_uuid}}'
+        retryPolicy:
+          backoffDuration: 0s
+          backoffFactor: 2.0
+          backoffMaxDuration: 3600s
+        taskInfo:
+          name: validate-data
+  inputDefinitions:
+    parameters:
+      container:
+        defaultValue: fleet-demo4
+        isOptional: true
+        parameterType: STRING
+      mse_threshold:
+        defaultValue: 0.02
+        isOptional: true
+        parameterType: NUMBER_DOUBLE
+      storage_account:
+        parameterType: STRING
+      target_member:
+        defaultValue: demo-west
+        isOptional: true
+        parameterType: STRING
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.15.0
+---
+platforms:
+  kubernetes:
+    deploymentSpec:
+      executors:
+        exec-evaluate-model:
+          podMetadata:
+            annotations:
+              sidecar.istio.io/inject: 'false'
+            labels:
+              azure.workload.identity/use: 'true'
+        exec-prepare-data:
+          podMetadata:
+            annotations:
+              sidecar.istio.io/inject: 'false'
+            labels:
+              azure.workload.identity/use: 'true'
+        exec-publish-results:
+          podMetadata:
+            annotations:
+              sidecar.istio.io/inject: 'false'
+            labels:
+              azure.workload.identity/use: 'true'
+        exec-train-remotely:
+          podMetadata:
+            annotations:
+              sidecar.istio.io/inject: 'false'
+            labels:
+              azure.workload.identity/use: 'true'
+          secretAsVolume:
+          - mountPath: /fleet-access
+            optional: false
+            secretName: fleet-blob-access
+            secretNameParameter:
+              runtimeValue:
+                constant: fleet-blob-access
+        exec-validate-data:
+          podMetadata:
+            annotations:
+              sidecar.istio.io/inject: 'false'
+            labels:
+              azure.workload.identity/use: 'true'
